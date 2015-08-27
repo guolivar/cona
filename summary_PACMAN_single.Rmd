@@ -1,0 +1,172 @@
+PACMAN deployment summary
+========================================================
+Load data
+-------------------------------
+The data from PACMAN does not include an ISO compliant date field so it must be constructed from the available data
+```{r prepare_environment}
+library('openair')
+library('ggplot2')
+unitID<-'pacman_18'
+pacman.data <- read.delim(paste0("/home/gustavo/data/CONA/PACMAN/campaign/",unitID,".txt"))
+names(pacman.data)<-c('Count','Year','Month','Day','Hour','Minute','Second',
+                      'Distance','Temperature_IN_C','Temperature_mV','PM_mV','CO2_mV','CO_mV','Movement','COstatus')
+pacman.data$Temperature_mV <- pacman.data$Temperature_mV/1000
+pacman.data$date<-ISOdatetime(year=pacman.data$Year,
+                              month=pacman.data$Month,
+                              day=pacman.data$Day,
+                              hour=pacman.data$Hour,
+                              min=pacman.data$Minute,
+                              sec=pacman.data$Second,
+                              tz="GMT")
+dstart=as.character(min(pacman.data$date))
+dend=as.character(max(pacman.data$date))
+```
+
+Deployment details
+--------------------------------
+Parameter | Value
+------------- | -------------
+Date start | `r dstart`
+Date finish | `r dend`
+Location | NIWA Christchurch
+Unit | `r unitID`
+
+
+Dust correction
+------------------------------
+Using data from previous deployments of similar dust sensors (ODIN project), the raw voltage reported by PACMAN was corrected to compensate for the impact of ambient temperature on its operation.
+
+```{r correct_Dust}
+## Dust = dustA*PM_mV + dustB*Temperature_mV + dustC ug/m3 ##
+
+# dustA=0.8798
+# dustB=-3.5372
+# dustC=-289.6213
+# pacman.data$Dust<-dustA*pacman.data$PM_mV + dustB*pacman.data$Temperature_mV + dustC
+pacman.data$Dust<-pacman.data$PM_mV
+```
+
+Carbon Monoxide data
+------------------------------
+The sensor used by PACMAN operates in cycles and only one data point per cycle is valid. PACMAN reports the `CO_status` flag that indicates the position in the cycle that the sensor is at. The valid data point correspond to the end of the `CO_status` labelled 2.
+
+```{r co_label}
+nrecs=length(pacman.data$COstatus)
+pacman.data$CO_ok<-FALSE
+pacman.data$CO_ok[-1]=(pacman.data$COstatus[-1]==1)
+```
+
+Weekly variation plots
+-----------------------------
+To summarize the date, we produced weekly diurnal variation plots for the measurements.
+
+### Distance
+```{r distance,fig.keep='none'}
+diurnal.distance<-timeVariation(pacman.data,pollutant='Distance')
+```
+```{r distance_plot}
+ggplot(diurnal.distance$data$day.hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+  geom_line(aes(x=hour,y=Mean),colour='red')+
+  facet_grid(~wkday)+
+  ggtitle('Distance')+
+  xlab('NZST hour')+
+  ylab('Distance from sensor [mV]')
+```
+
+### Temperature outside
+```{r temp_out,fig.keep='none'}
+diurnal.temp_out<-try(timeVariation(pacman.data,pollutant='Temperature_IN_C'))
+```
+```{r temp_out_plot}
+if (class(diurnal.temp_out)!="try-error"){
+  ggplot(diurnal.temp_out$data$day.hour)+
+    geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+    geom_line(aes(x=hour,y=Mean),colour='red')+
+    facet_grid(~wkday)+
+    ggtitle('External temperature')+
+    xlab('NZST hour')+
+    ylab('External Temperature [C]')
+}
+```
+
+### Temperature inside
+```{r temp_in,fig.keep='none'}
+diurnal.temp_in<-try(timeVariation(pacman.data,pollutant='Temperature_mV'))
+```
+```{r temp_in_plot}
+if (class(diurnal.temp_in)!="try-error"){
+  ggplot(diurnal.temp_in$data$day.hour)+
+    geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+    geom_line(aes(x=hour,y=Mean),colour='red')+
+    facet_grid(~wkday)+
+    ggtitle('Internal Temperature')+
+    xlab('NZST hour')+
+    ylab('Internal Temperature [C]')
+}
+```
+
+### Dust
+```{r dust,fig.keep='none'}
+diurnal.dust<-try(timeVariation(pacman.data,pollutant='Dust'))
+```
+```{r dust_plot}
+if (class(diurnal.dust)!="try-error"){
+ggplot(diurnal.dust$data$day.hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+  geom_line(aes(x=hour,y=Mean),colour='red')+
+  facet_grid(~wkday)+
+  ggtitle('Dust \n Corrected with ODIN data')+
+  xlab('NZST hour')+
+  ylab('Dust [ug/m3]')
+}
+scatterPlot(pacman.data,x='Temperature_mV',y='Dust')
+```
+
+### Carbon Dioxide
+```{r co2,fig.keep='none'}
+diurnal.co2<-try(timeVariation(pacman.data,pollutant='CO2_mV'))
+```
+```{r co2_plot}
+if (class(diurnal.co2)!="try-error"){
+ggplot(diurnal.co2$data$day.hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+  geom_line(aes(x=hour,y=Mean),colour='red')+
+  facet_grid(~wkday)+
+  ggtitle('CO2')+
+  xlab('NZST hour')+
+  ylab('CO2 [mV]')
+}
+```
+
+### Carbon Monoxide
+```{r co,fig.keep='none'}
+diurnal.co<-try(timeVariation(pacman.data,pollutant='CO_mV',plot=FALSE))
+```
+```{r co_plot}
+if (class(diurnal.co)!="try-error"){
+ggplot(diurnal.co$data$day.hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+  geom_line(aes(x=hour,y=Mean),colour='red')+
+  facet_grid(~wkday)+
+  ggtitle('CO')+
+  xlab('NZST hour')+
+  ylab('CO [mV]')
+}
+```
+
+### Movement
+```{r move,fig.keep='none'}
+diurnal.mov<-try(timeVariation(pacman.data,pollutant='Movement'))
+```
+```{r move_plot}
+if (class(diurnal.mov)!="try-error"){
+ggplot(diurnal.mov$data$day.hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red')+
+  geom_line(aes(x=hour,y=Mean),colour='red')+
+  facet_grid(~wkday)+
+  ggtitle('Movement')+
+  xlab('NZST hour')+
+  ylab('Movement')
+  }
+```
