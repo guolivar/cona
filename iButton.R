@@ -53,11 +53,3 @@ iButtons <- merge(iButtons,iB_A500000032322841,by = 'date',all = TRUE)
 iButtons <- merge(iButtons,iB_C200000026F9BE41,by = 'date',all = TRUE)
 iButtons <- merge(iButtons,iB_D200000026F1EE41,by = 'date',all = TRUE)
 
-# Plots ####
-timePlot(iButtons,pollutant = c('Temperature.1B',
-                                'Temperature.3D',
-                                'Temperature.88',
-                                'Temperature.A5',
-                                'Temperature.C2',
-                                'Temperature.D2'),
-         avg.time = '10 min', group = TRUE)
