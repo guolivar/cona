@@ -93,19 +93,45 @@ scatterPlot(plot_data,x='Temperature.C2','Temp.191',
             ylab = 'BRANZ')
 
 
-diurnal.Temperatures<-timeVariation(all_temp.10min,pollutant = c(#'Temperature.1B',
-                                                                    'Temperature.3D',
-                                                                    'Temperature.88',
-                                                                    'Temperature.A5',
-                                                                    'Temperature.C2',
-#                                                                    'Temperature.D2',
-                                                                    'Temperature.2m',
-                                                                    'Temperature.6m'))
+# Reshape the data to long format
+
+iButtons.long <- melt(iButtons,
+                  id.vars=c("date"),
+                  measure.vars=names(iButtons)[2:7],
+                  variable.name="iButtonID",
+                  value.name="Temperature"
+)
+
+branz.long <- melt(branz,
+                   id.vars=c("date"),
+                   measure.vars=names(branz)[2:9],
+                   variable.name="BRANZ.id",
+                   value.name="Temperature"
+)
+
+long_temperature <- merge(iButtons.long,branz.long,by = 'date', all = TRUE)
+names(long_temperature) <- c('date','iB.id','T.iButtons','BRANZ.id','T.BRANZ')
+long_temperature <- merge(long_temperature,ecan_data,by = 'date',all = TRUE)
+names(long_temperature) <- c('date','iB.id','T.iButtons','BRANZ.id','T.BRANZ','PM10','T.2m','T.6m','ws','wd')
+long_temperature.10min <- timeAverage(long_temperature,avg.time = '10 min')
+
+timeVariation(long_temperature.10min,pollutant = c('T.iButtons','T.BRANZ','T.2m','T.6m'))
+
+diurnal.Temperatures<-timeVariation(all_temp.10min,pollutant = c('Temperature.1B',
+  'Temperature.3D',
+  'Temperature.88',
+  'Temperature.A5',
+  'Temperature.C2',
+  'Temperature.D2',
+  'Temperature.2m',
+  'Temperature.6m'))
+
 ggplot(diurnal.Temperatures$data$hour)+
-  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper,colour = variable,fill = variable))+
-  #geom_line(aes(x=hour,y=Mean,colour = variable),colour=variable)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper,colour = variable,fill  = variable))+
+  #geom_line(aes(x=hour,y=Mean,colour r a = variable),colour=variable)+
   #scale_colour_discrete()+
   ggtitle('Temperature')+
   xlab('NZST hour')+
   ylab('Temperature [C]')
+
 
