@@ -13,22 +13,22 @@ all_temp.10min <- timeAverage(all_temp,avg.time = '10 min')
 
 # Plot data by address
 
-# 22 Church Street
+# Subject 12
 mindate <- format(max(min(iB_3D00000026EEC341$date),min(HUV186$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_3D00000026EEC341$date),max(HUV186$date),max(ecan_data$date)),format = '%Y-%m-%d')
 plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.3D',
                                 'Temp.186',
                                 'Temperature.2m'),
-         group = TRUE, main = '22 Church Street',
+         group = TRUE, main = 'Subject 12',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
 scatterPlot(plot_data,x='Temperature.3D','Temp.186',
-            main = '22 Church Street',
+            main = 'Subject 12',
             xlab = 'iButton',
             ylab = 'BRANZ')
 
-# 161 Lehmans Road
+# Subject 10
 
 mindate <- format(max(min(iB_A500000032322841$date),min(HUV141$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_A500000032322841$date),max(HUV141$date),max(ecan_data$date)),format = '%Y-%m-%d')
@@ -36,15 +36,15 @@ plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.A5',
                                 'Temp.141',
                                 'Temperature.2m'),
-         group = TRUE, main = '161 Lehmans Road',
+         group = TRUE, main = 'Subject 10',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
 scatterPlot(plot_data,x='Temperature.A5','Temp.141',
-            main = '161 Lehmans Road',
+            main = 'Subject 10',
             xlab = 'iButton',
             ylab = 'BRANZ')
 
-# 296 Kensington Ave
+# Subject 09
 
 mindate <- format(max(min(iB_8800000026F06241$date),min(HUV123$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_8800000026F06241$date),max(HUV123$date),max(ecan_data$date)),format = '%Y-%m-%d')
@@ -52,15 +52,15 @@ plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.88',
                                  'Temp.123',
                                  'Temperature.2m'),
-         group = TRUE, main = '296 Kensington Ave',
+         group = TRUE, main = 'Subject 09',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
 scatterPlot(plot_data,x='Temperature.88','Temp.123',
-            main = '296 Kensington Ave',
+            main = 'Subject 09',
             xlab = 'iButton',
             ylab = 'BRANZ')
 
-# 2589 South Eyre Road
+# Subject 05
 
 mindate <- format(max(min(iB_1B000000322E6141$date),min(HUV166$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_1B000000322E6141$date),max(HUV166$date),max(ecan_data$date)),format = '%Y-%m-%d')
@@ -68,15 +68,15 @@ plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.1B',
                                  'Temp.166',
                                  'Temperature.2m'),
-         group = TRUE, main = '2589 South Eyre Road',
+         group = TRUE, main = 'Subject 05',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
 scatterPlot(plot_data,x='Temperature.1B','Temp.166',
-            main = '2589 South Eyre Road',
+            main = 'Subject 05',
             xlab = 'iButton',
             ylab = 'BRANZ')
 
-# 4 Duke Street
+# Subject 04
 
 mindate <- format(max(min(iB_C200000026F9BE41$date),min(HUV191$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_C200000026F9BE41$date),max(HUV191$date),max(ecan_data$date)),format = '%Y-%m-%d')
@@ -84,11 +84,11 @@ plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.C2',
                                  'Temp.191',
                                  'Temperature.2m'),
-         group = TRUE, main = '4 Duke Street',
+         group = TRUE, main = 'Subject 04',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
 scatterPlot(plot_data,x='Temperature.C2','Temp.191',
-            main = '4 Duke Street',
+            main = 'Subject 04',
             xlab = 'iButton',
             ylab = 'BRANZ')
 
