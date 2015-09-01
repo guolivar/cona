@@ -12,3 +12,5 @@ vignettes/*.pdf
 .RData
 *.pdf
 *.html
+*.csv
+*.png
