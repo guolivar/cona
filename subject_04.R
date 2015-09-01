@@ -39,6 +39,15 @@ pacman.data$date<-ISOdatetime(year=pacman.data$Year,
                               min=pacman.data$Minute,
                               sec=pacman.data$Second,
                               tz="NZST")
+#CO label
+nrecs=length(pacman.data$COstatus)
+pacman.data$CO_ok <- FALSE
+pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==2)&(pacman.data$COstatus[1:nrecs-1]==1)
+pacman.data$CO_mV[!pacman.data$CO_ok] <- NA
+
+# Inverting CO2
+pacman.data$CO2_mV <- -1 * pacman.data$CO2_mV
+
 # The dust sensor in the pacman didn't work for the first few hours
 # Valid data after 2015-08-14 22:00
 #pacman.data <- subset(pacman.data,subset = date > as.POSIXct('2015-08-14 22:00',tz = 'NZST'))
@@ -65,9 +74,9 @@ timePlot(plot_data,pollutant = c('Temperature.C2',
          name.pol = c('iButton','BRANZ','PACMAN','Outdoor'),
          ylab = 'Temperature [C]')
 
-timePlot(plot_data,pollutant = c('Temp.191','PM_mV','PM10.FDMS'),avg.time = '1 hour')
-timePlot(plot_data,pollutant = c('Temp.191','PM_mV','PM10.FDMS'),avg.time = '1 day')
-timePlot(plot_data,pollutant = c('Temp.191','PM_mV','PM10.FDMS'),avg.time = '1 hour', statistic = 'max')
+timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 hour')
+timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 day')
+timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 hour', statistic = 'max', main = 'Hourly MAXIMUM')
 
 scatterPlot(plot_data,x='Temperature.C2','Temp.191',
             main = 'Subject 4',
@@ -80,11 +89,5 @@ scatterPlot(plot_data,x='Temperature_mV','Temp.191',
             xlab = 'PACMAN',
             ylab = 'BRANZ')
 
-
-
-
-
-
-
-
-
+subject04.data.1min <- timeAverage(selectByDate(subject.data, start = mindate, end = maxdate),avg.time = '1 min')
+write.csv(subject04.data.1min,'./subject_04.csv')
