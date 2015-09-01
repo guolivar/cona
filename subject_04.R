@@ -70,7 +70,7 @@ timePlot(plot_data,pollutant = c('Temperature.C2',
                                  'Temp.191',
                                  'Temperature_mV',
                                  'Temperature.2m'),
-         group = TRUE, main = '296 Kensington Ave',
+         group = TRUE, main = 'Subject 4',
          name.pol = c('iButton','BRANZ','PACMAN','Outdoor'),
          ylab = 'Temperature [C]')
 
