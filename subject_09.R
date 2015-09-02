@@ -42,8 +42,12 @@ pacman.data$date<-ISOdatetime(year=pacman.data$Year,
 #CO label
 nrecs=length(pacman.data$COstatus)
 pacman.data$CO_ok <- FALSE
-pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==2)&(pacman.data$COstatus[1:nrecs-1]==1)
+pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==1)&(pacman.data$COstatus[1:nrecs-1]==2)
+pacman.data$CO_raw <- pacman.data$CO_mV
 pacman.data$CO_mV[!pacman.data$CO_ok] <- NA
+
+# Inverting CO2
+pacman.data$CO2_mV <- -1 * pacman.data$CO2_mV
 
 # The dust sensor in the pacman didn't work for the first few hours
 # Valid data after 2015-08-14 22:00
@@ -78,13 +82,15 @@ timePlot(plot_data,pollutant = c('Temp.123','CO2_mV','CO_mV','PM_mV','PM10.FDMS'
 scatterPlot(plot_data,x='Temperature.88','Temp.123',
             main = 'Subject 09',
             xlab = 'iButton',
-            ylab = 'BRANZ')
+            ylab = 'BRANZ',
+            avg.time = '10 min')
 
 
 scatterPlot(plot_data,x='Temperature_mV','Temp.123',
             main = 'Subject 09',
             xlab = 'PACMAN',
-            ylab = 'BRANZ')
+            ylab = 'BRANZ',
+            avg.time = '10 min')
 
 subject09.data.1min <- timeAverage(selectByDate(subject.data, start = mindate, end = maxdate),avg.time = '1 min')
 write.csv(subject09.data.1min,'./subject_09.csv')

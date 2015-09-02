@@ -42,8 +42,12 @@ pacman.data$date<-ISOdatetime(year=pacman.data$Year,
 #CO label
 nrecs=length(pacman.data$COstatus)
 pacman.data$CO_ok <- FALSE
-pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==2)&(pacman.data$COstatus[1:nrecs-1]==1)
+pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==1)&(pacman.data$COstatus[1:nrecs-1]==2)
+pacman.data$CO_raw <- pacman.data$CO_mV
 pacman.data$CO_mV[!pacman.data$CO_ok] <- NA
+
+# Inverting CO2
+pacman.data$CO2_mV <- -1 * pacman.data$CO2_mV
 
 # The dust sensor in the pacman didn't work for the first few hours
 # Valid data after 2015-08-14 22:00
@@ -62,11 +66,13 @@ subject.data.10min <- timeAverage(subject.data,avg.time = '10 min')
 
 mindate <- format(max(min(iB_A500000032322841$date),min(HUV141$date),min(ecan_data$date),min(pacman.data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_A500000032322841$date),max(HUV141$date),max(ecan_data$date),max(pacman.data$date)),format = '%Y-%m-%d')
-plot_data <- selectByDate(subject.data.10min, start = mindate, end = maxdate)
+plot_data <- selectByDate(subject.data, start = mindate, end = maxdate)
 timePlot(plot_data,pollutant = c('Temperature.A5',
                                  'Temp.141',
                                  'Temperature_mV',
                                  'Temperature.2m'),
+         avg.time = '10 min',
+         normalise = 'mean',
          group = TRUE, main = 'Subject 10',
          name.pol = c('iButton','BRANZ','PACMAN','Outdoor'),
          ylab = 'Temperature [C]')
@@ -78,13 +84,15 @@ timePlot(plot_data,pollutant = c('Temp.141','CO2_mV','CO_mV','PM_mV','PM10.FDMS'
 scatterPlot(plot_data,x='Temperature.A5','Temp.141',
             main = 'Subject 10',
             xlab = 'iButton',
-            ylab = 'BRANZ')
+            ylab = 'BRANZ',
+            avg.time = '10 min')
 
 
 scatterPlot(plot_data,x='Temperature_mV','Temp.141',
             main = 'Subject 10',
             xlab = 'PACMAN',
-            ylab = 'BRANZ')
+            ylab = 'BRANZ',
+            avg.time = '10 min')
 
 subject10.data.1min <- timeAverage(selectByDate(subject.data, start = mindate, end = maxdate),avg.time = '1 min')
 write.csv(subject10.data.1min,'./subject_10.csv')

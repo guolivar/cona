@@ -13,3 +13,13 @@ pacman.data$date<-ISOdatetime(year=pacman.data$Year,
                               min=pacman.data$Minute,
                               sec=pacman.data$Second,
                               tz="GMT")
+
+#CO label
+nrecs=length(pacman.data$COstatus)
+pacman.data$CO_ok <- FALSE
+pacman.data$CO_ok[1:nrecs-1] <- (pacman.data$COstatus[-1]==1)&(pacman.data$COstatus[1:nrecs-1]==2)
+pacman.data$CO_raw <- pacman.data$CO_mV
+pacman.data$CO_mV[!pacman.data$CO_ok] <- NA
+
+# Inverting CO2
+pacman.data$CO2_mV <- -1 * pacman.data$CO2_mV

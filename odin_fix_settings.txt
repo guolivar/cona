@@ -1,0 +1,2 @@
+/home/gustavo/data/CONA/ODIN/deployment/odin_07.txt
+/home/gustavo/data/CONA/ODIN/deployment/odin_07.data
