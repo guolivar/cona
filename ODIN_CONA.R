@@ -215,7 +215,7 @@ all_merged.10min$Dust.07.corr <- all_merged.10min$Dust.07.detrend - predict(odin
 ### Full dataset 1 hour  PM$_{2.5}$ fdms
 
 all_merged.1hr<-timeAverage(all_merged.10min,avg.time='1 hour')
-
+all_merged.1hr<- all_merged.10min
 summary(odin2.lm.full.1hr.pm2.5<-
           lm(data=all_merged.1hr,PM10.FDMS~
                Dust.02.corr))
