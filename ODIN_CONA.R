@@ -1,5 +1,5 @@
 #' ---
-#' title: "ODIN CONA deployment"
+#' title: "ODIN CONA First 2 weeks"
 #' author: "Gustavo Olivares"
 #' output: html_document
 #' ---
@@ -8,7 +8,7 @@ require('openair')
 require('reshape2')
 # load_odin data
 
-## ODIN_02
+## ODIN_02. Temperature and RH sensor failed. See below for proxy data used
 odin_02 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_02.data",
                       header=T, quote="")
 
@@ -19,7 +19,7 @@ odin_02$Batt<-5*odin_02$Batt/1024
 timePlot(odin_02,pollutant = c('Dust','Temp'))
 
 
-## ODIN_03
+## ODIN_03 ... Failed after 24 hours. not used
 odin_03 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_03.data",
                       header=T, quote="")
 
@@ -60,7 +60,7 @@ odin_06$Date<-NULL
 odin_06$Batt<-5*odin_06$Batt/1024
 timePlot(odin_06,pollutant = c('Dust','Temp'))
 
-## ODIN_07
+## ODIN_07. Data not downloaded. Not used.
 odin_07 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_07.data",
                       header=T, quote="")
 
@@ -72,7 +72,7 @@ timePlot(odin_07,pollutant = c('Dust','Temp'))
 
 # Load ECan data
 
-download.file(url = "http://data.ecan.govt.nz/data/29/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(Hourly)/CSV?SiteId=5&StartDate=14%2F08%2F2015&EndDate=31%2F08%2F2015",destfile = "ecan_data.csv",method = "curl")
+download.file(url = "http://data.ecan.govt.nz/data/29/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(Hourly)/CSV?SiteId=5&StartDate=14%2F08%2F2015&EndDate=01%2F09%2F2015",destfile = "ecan_data.csv",method = "curl")
 system("sed -i 's/a.m./AM/g' ecan_data.csv")
 system("sed -i 's/p.m./PM/g' ecan_data.csv")
 ecan_data_raw <- read.csv("ecan_data.csv",stringsAsFactors=FALSE)
@@ -133,19 +133,18 @@ lag_test=ccf(all_merged.10min$Temperature.05,
 # Estimate the baseline from a simple linear regression
 
 all_merged.10min$ODIN_drift.02<-predict(lm(all_merged.10min$Dust.02~seq(all_merged.10min$Dust.02)),newdata = all_merged.10min)
-all_merged.10min$ODIN_drift.03<-predict(lm(all_merged.10min$Dust.03~seq(all_merged.10min$Dust.03)),newdata = all_merged.10min)
+#all_merged.10min$ODIN_drift.03<-predict(lm(all_merged.10min$Dust.03~seq(all_merged.10min$Dust.03)),newdata = all_merged.10min)
 all_merged.10min$ODIN_drift.04<-predict(lm(all_merged.10min$Dust.04~seq(all_merged.10min$Dust.04)),newdata = all_merged.10min)
 all_merged.10min$ODIN_drift.05<-predict(lm(all_merged.10min$Dust.05~seq(all_merged.10min$Dust.05)),newdata = all_merged.10min)
 all_merged.10min$ODIN_drift.06<-predict(lm(all_merged.10min$Dust.06~seq(all_merged.10min$Dust.06)),newdata = all_merged.10min)
-all_merged.10min$ODIN_drift.07<-predict(lm(all_merged.10min$Dust.07~seq(all_merged.10min$Dust.07)),newdata = all_merged.10min)
-all_merged.10min$ODIN_drift.07 <- NA
+#all_merged.10min$ODIN_drift.07<-predict(lm(all_merged.10min$Dust.07~seq(all_merged.10min$Dust.07)),newdata = all_merged.10min)
 
 # Remove the baseline drift from the raw ODIN data
 all_merged.10min$Dust.02.raw <- all_merged.10min$Dust.02
 all_merged.10min$Dust.02.detrend<-all_merged.10min$Dust.02.raw - all_merged.10min$ODIN_drift.02
 
-all_merged.10min$Dust.03.raw <- all_merged.10min$Dust.03
-all_merged.10min$Dust.03.detrend<-all_merged.10min$Dust.03.raw - all_merged.10min$ODIN_drift.03
+# all_merged.10min$Dust.03.raw <- all_merged.10min$Dust.03
+# all_merged.10min$Dust.03.detrend<-all_merged.10min$Dust.03.raw - all_merged.10min$ODIN_drift.03
 
 all_merged.10min$Dust.04.raw <- all_merged.10min$Dust.04
 all_merged.10min$Dust.04.detrend<-all_merged.10min$Dust.04.raw - all_merged.10min$ODIN_drift.04
@@ -156,73 +155,72 @@ all_merged.10min$Dust.05.detrend<-all_merged.10min$Dust.05.raw - all_merged.10mi
 all_merged.10min$Dust.06.raw <- all_merged.10min$Dust.06
 all_merged.10min$Dust.06.detrend<-all_merged.10min$Dust.06.raw - all_merged.10min$ODIN_drift.06
 
-all_merged.10min$Dust.07.raw <- all_merged.10min$Dust.07
-all_merged.10min$Dust.07.detrend<-all_merged.10min$Dust.07.raw - all_merged.10min$ODIN_drift.07
+# all_merged.10min$Dust.07.raw <- all_merged.10min$Dust.07
+# all_merged.10min$Dust.07.detrend<-all_merged.10min$Dust.07.raw - all_merged.10min$ODIN_drift.07
 
 ## Testing not correcting drift
 all_merged.10min$Dust.02.detrend<-all_merged.10min$Dust.02.raw
-all_merged.10min$Dust.03.detrend<-all_merged.10min$Dust.03.raw
+# all_merged.10min$Dust.03.detrend<-all_merged.10min$Dust.03.raw
 all_merged.10min$Dust.04.detrend<-all_merged.10min$Dust.04.raw
 all_merged.10min$Dust.05.detrend<-all_merged.10min$Dust.05.raw
 all_merged.10min$Dust.06.detrend<-all_merged.10min$Dust.06.raw
-all_merged.10min$Dust.07.detrend<-all_merged.10min$Dust.07.raw
+# all_merged.10min$Dust.07.detrend<-all_merged.10min$Dust.07.raw
 
-## Estimate temperature for ODINs 02, 03, 07
+## Estimate temperature for ODIN 02 as the average of all the other temperatures (which are very well correlated)
 all_merged.10min$Temperature.02 <- with(all_merged.10min,(Temperature.04+Temperature.05+Temperature.06)/3)
-all_merged.10min$Temperature.03 <- with(all_merged.10min,(Temperature.04+Temperature.05+Temperature.06)/3)
-all_merged.10min$Temperature.07 <- with(all_merged.10min,(Temperature.04+Temperature.05+Temperature.06)/3)
+
 ## Calculate the temperature interference
 all_merged.10min$Temperature.02.bin<-cut(all_merged.10min$Temperature.02,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
-all_merged.10min$Temperature.03.bin<-cut(all_merged.10min$Temperature.03,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
+# all_merged.10min$Temperature.03.bin<-cut(all_merged.10min$Temperature.03,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
 all_merged.10min$Temperature.04.bin<-cut(all_merged.10min$Temperature.04,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
 all_merged.10min$Temperature.05.bin<-cut(all_merged.10min$Temperature.05,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
 all_merged.10min$Temperature.06.bin<-cut(all_merged.10min$Temperature.06,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
-all_merged.10min$Temperature.07.bin<-cut(all_merged.10min$Temperature.07,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
+# all_merged.10min$Temperature.07.bin<-cut(all_merged.10min$Temperature.07,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
 Temp <- c(2.5,7.5,12.5,17.5,22.5)
 
 Dust.02<-tapply(all_merged.10min$Dust.02.detrend,all_merged.10min$Temperature.02.bin,quantile,0.25)
-Dust.03<-tapply(all_merged.10min$Dust.03.detrend,all_merged.10min$Temperature.03.bin,quantile,0.25)
+# Dust.03<-tapply(all_merged.10min$Dust.03.detrend,all_merged.10min$Temperature.03.bin,quantile,0.25)
 Dust.04<-tapply(all_merged.10min$Dust.04.detrend,all_merged.10min$Temperature.04.bin,quantile,0.25)
 Dust.05<-tapply(all_merged.10min$Dust.05.detrend,all_merged.10min$Temperature.05.bin,quantile,0.25)
 Dust.06<-tapply(all_merged.10min$Dust.06.detrend,all_merged.10min$Temperature.06.bin,quantile,0.25)
-Dust.07<-tapply(all_merged.10min$Dust.07.detrend,all_merged.10min$Temperature.07.bin,quantile,0.25)
+# Dust.07<-tapply(all_merged.10min$Dust.07.detrend,all_merged.10min$Temperature.07.bin,quantile,0.25)
 
 TC_Dust.02 <- data.frame(Dust.02.detrend = Dust.02,Temperature.02 = Temp)
-TC_Dust.03 <- data.frame(Dust.03.detrend = Dust.03,Temperature.03 = Temp)
+# TC_Dust.03 <- data.frame(Dust.03.detrend = Dust.03,Temperature.03 = Temp)
 TC_Dust.04 <- data.frame(Dust.04.detrend = Dust.04,Temperature.04 = Temp)
 TC_Dust.05 <- data.frame(Dust.05.detrend = Dust.05,Temperature.05 = Temp)
 TC_Dust.06 <- data.frame(Dust.06.detrend = Dust.06,Temperature.06 = Temp)
-TC_Dust.07 <- data.frame(Dust.07.detrend = Dust.07,Temperature.07 = Temp)
+# TC_Dust.07 <- data.frame(Dust.07.detrend = Dust.07,Temperature.07 = Temp)
 
 # Now we calculate the linear regression for the minimum dust response in each temperature bin and subtract it from the detrended data
 
 summary(odin.02_T<-lm(data = TC_Dust.02,Dust.02.detrend~Temperature.02))
-summary(odin.03_T<-lm(data = TC_Dust.03,Dust.03.detrend~Temperature.03))
+# summary(odin.03_T<-lm(data = TC_Dust.03,Dust.03.detrend~Temperature.03))
 summary(odin.04_T<-lm(data = TC_Dust.04,Dust.04.detrend~Temperature.04))
 summary(odin.05_T<-lm(data = TC_Dust.05,Dust.05.detrend~Temperature.05))
 summary(odin.06_T<-lm(data = TC_Dust.06,Dust.06.detrend~Temperature.06))
-summary(odin.07_T<-lm(data = TC_Dust.07,Dust.07.detrend~Temperature.07))
+# summary(odin.07_T<-lm(data = TC_Dust.07,Dust.07.detrend~Temperature.07))
 
 all_merged.10min$Dust.02.corr <- all_merged.10min$Dust.02.detrend - predict(odin.02_T,newdata = all_merged.10min)
-all_merged.10min$Dust.03.corr <- all_merged.10min$Dust.03.detrend - predict(odin.03_T,newdata = all_merged.10min)
+# all_merged.10min$Dust.03.corr <- all_merged.10min$Dust.03.detrend - predict(odin.03_T,newdata = all_merged.10min)
 all_merged.10min$Dust.04.corr <- all_merged.10min$Dust.04.detrend - predict(odin.04_T,newdata = all_merged.10min)
 all_merged.10min$Dust.05.corr <- all_merged.10min$Dust.05.detrend - predict(odin.05_T,newdata = all_merged.10min)
 all_merged.10min$Dust.06.corr <- all_merged.10min$Dust.06.detrend - predict(odin.06_T,newdata = all_merged.10min)
-all_merged.10min$Dust.07.corr <- all_merged.10min$Dust.07.detrend - predict(odin.07_T,newdata = all_merged.10min)
+# all_merged.10min$Dust.07.corr <- all_merged.10min$Dust.07.detrend - predict(odin.07_T,newdata = all_merged.10min)
 
 ## Dust performance using ECan data for calibration
 
 ### Full dataset 1 hour  PM$_{2.5}$ fdms
 
-all_merged.1hr<-timeAverage(all_merged.10min,avg.time='1 hour')
+#all_merged.1hr<-timeAverage(all_merged.10min,avg.time='1 hour')
+# It's called "1 hr" but it is in fact 10 min
 all_merged.1hr<- all_merged.10min
 summary(odin2.lm.full.1hr.pm2.5<-
           lm(data=all_merged.1hr,PM10.FDMS~
                Dust.02.corr))
-
-summary(odin3.lm.full.1hr.pm2.5<-
-          lm(data=all_merged.1hr,PM10.FDMS~
-               Dust.03.corr))
+# summary(odin3.lm.full.1hr.pm2.5<-
+#           lm(data=all_merged.1hr,PM10.FDMS~
+#                Dust.03.corr))
 summary(odin4.lm.full.1hr.pm2.5<-
           lm(data=all_merged.1hr,PM10.FDMS~
                Dust.04.corr))
@@ -232,68 +230,78 @@ summary(odin5.lm.full.1hr.pm2.5<-
 summary(odin6.lm.full.1hr.pm2.5<-
           lm(data=all_merged.1hr,PM10.FDMS~
                Dust.06.corr))
-summary(odin7.lm.full.1hr.pm2.5<-
-          lm(data=all_merged.1hr,PM10.FDMS~
-               Dust.07.corr))
+# summary(odin7.lm.full.1hr.pm2.5<-
+#           lm(data=all_merged.1hr,PM10.FDMS~
+#                Dust.07.corr))
 
 ### Calibrated Dust
 all_merged.1hr$Dust.02.cal<-predict(odin2.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
-all_merged.1hr$Dust.03.cal<-predict(odin3.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
+# all_merged.1hr$Dust.03.cal<-predict(odin3.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
 all_merged.1hr$Dust.04.cal<-predict(odin4.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
 all_merged.1hr$Dust.05.cal<-predict(odin5.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
 all_merged.1hr$Dust.06.cal<-predict(odin6.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
-all_merged.1hr$Dust.07.cal<-predict(odin7.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
+# all_merged.1hr$Dust.07.cal<-predict(odin7.lm.full.1hr.pm2.5,newdata = all_merged.1hr)
 
 timePlot(all_merged.1hr,pollutant = c('PM10.FDMS',
-                                      #'Dust.02.corr',
+                                      'Dust.02.corr',
                                       #'Dust.03.corr',
-                                      #'Dust.04.corr',
+                                      'Dust.04.corr',
                                       'Dust.05.corr',
                                       'Dust.06.corr'
                                       #'Dust.07.corr'
                                       )
-         ,group = TRUE)
+         ,group = FALSE
+         ,main = '10 min')
 timePlot(all_merged.1hr,pollutant = c('PM10.FDMS'
-                                      #,'Dust.02.cal'
+                                      ,'Dust.02.cal'
                                       #,'Dust.03.cal'
-                                      #,'Dust.04.cal'
+                                      ,'Dust.04.cal'
                                       ,'Dust.05.cal'
                                       ,'Dust.06.cal'
                                       #,'Dust.07.cal'
                                       )
-         ,group = TRUE,
-         avg.time = '1 day')
+         ,group = FALSE
+         ,avg.time = '1 hour'
+         ,main = '1 hour'
+)
 timeVariation(all_merged.1hr,pollutant = c('PM10.FDMS'
-                                           #,'Dust.02.cal'
+                                           ,'Dust.02.cal'
                                            #,'Dust.03.cal'
-                                           #,'Dust.04.cal'
+                                           ,'Dust.04.cal'
                                            ,'Dust.05.cal'
                                            ,'Dust.06.cal'
                                            #,'Dust.07.cal'
                                            ))
 timeVariation(all_merged.1hr,pollutant = c('PM10.FDMS'
-                                           #,'Dust.02.corr'
+                                           ,'Dust.02.corr'
                                            #,'Dust.03.corr'
-                                           #,'Dust.04.corr'
+                                           ,'Dust.04.corr'
                                            ,'Dust.05.corr'
                                            ,'Dust.06.corr'
                                            #,'Dust.07.corr'
                                       ))
 
-timeVariation(all_merged.1hr,pollutant = c('Dust.05.corr',
-                                      'Dust.06.corr'))
 
-
-
-
-
-
-
-
-
-
-
-
+timebase = '1 hour'
+for (xday in (15:31)){
+  current_day = paste0('2015-08-',sprintf('%02.f',xday))
+  plot_data <- selectByDate(all_merged.1hr,start = current_day, end = current_day)
+  png(paste0('./tseries_',current_day,'.png'),width = 1024, height = 1024)
+  timePlot(plot_data,pollutant = c('PM10.FDMS'
+                                   ,'Dust.02.cal'
+                                   #,'Dust.03.cal'
+                                   ,'Dust.04.cal'
+                                   ,'Dust.05.cal'
+                                   ,'Dust.06.cal'
+                                   #,'Dust.07.cal'
+                                   )
+           ,group = FALSE
+           #,normalise = 'mean'
+           ,avg.time = timebase
+           ,main = paste(current_day,timebase)
+           )
+  dev.off()
+}
 
 
 
