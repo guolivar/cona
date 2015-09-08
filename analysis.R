@@ -134,4 +134,61 @@ ggplot(diurnal.Temperatures$data$hour)+
   xlab('NZST hour')+
   ylab('Temperature [C]')
 
+timePlot(selectByDate(all_temp.10min,start = '2015-08-15',end = '2015-08-31')
+         ,pollutant = c('Temperature.2m',
+                        'Temp.191',
+                        'Temp.186',
+                        'Temp.166',
+                        'Temp.154',
+                        'Temp.149',
+                        'Temp.141',
+                        'Temp.123',
+                        'Temp.118')
+         ,group = TRUE
+         ,avg.time = '10 min'
+         ,name.pol = c('Temp.1',
+                       'Temp.2',
+                       'Temp.3',
+                       'Temp.4',
+                       'Temp.5',
+                       'Temp.6',
+                       'Temp.7',
+                       'Temp.8',
+                       'Temp.out')
+         ,ylab = 'Temperature [C]'
+         )
+
+timePlot(long_temperature,pollutant = c('T.iButtons','T.BRANZ','T.2m','T.6m')
+         ,group = TRUE
+         ,smooth = TRUE
+         ,ci = TRUE
+         )
+
+ggplot(selectByDate(long_temperature,start = '2015-08-15',end = '2015-08-31'),aes(x=date)) +
+  geom_point(aes(y=T.iButtons,colour = 'iButtons')) +
+  geom_point(aes(y=T.BRANZ,colour = 'BRANZ')) +
+  geom_point(aes(y=T.2m,colour = 'Outdoor')) +
+  ylab('Temperature [C]') +
+  xlab('Local Time') +
+  scale_color_discrete(name = '')
+
+
+ggplot(selectByDate(subset(all_temp,subset = (Temperature.2m > 10)),start = '2015-08-15',end = '2015-08-31'),aes(x=date)) +
+  geom_point(aes(y=Temperature.C2,colour = 'iButton')) +
+  geom_point(aes(y=Temp.191,colour = 'BRANZ')) +
+  geom_point(aes(y=Temperature.2m,colour = 'Outdoor')) +
+  ylab('Temperature [C]') +
+  xlab('Local Time') +
+  scale_color_discrete(name = '')
+
+ggplot(selectByDate(subset(all_temp.10min,subset = (Temperature.2m > 10)),start = '2015-08-15',end = '2015-08-31'),aes(x=date)) +
+  geom_point(aes(y=Temperature.C2,colour = 'iButton')) +
+  geom_point(aes(y=Temp.191,colour = 'BRANZ')) +
+  geom_point(aes(y=Temperature.2m,colour = 'Outdoor')) +
+  ylab('Temperature [C]') +
+  xlab('Local Time') +
+  scale_color_discrete(name = '')
+
+
+
 
