@@ -96,7 +96,7 @@ timePlot(plot_data,pollutant = c('Temp.191','Temperature_mV'),avg.time = '1 hour
 timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr','PM10.FDMS'),avg.time = '1 day')
 timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr','PM10.FDMS'),avg.time = '1 hour', statistic = 'max', main = 'Hourly MAXIMUM')
 timeVariation(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV'),normalise = TRUE)
-timeVariation(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),normalise = FALSE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
+timeVariation(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
 
 scatterPlot(plot_data,x='Temperature.C2','Temp.191',
             main = 'Subject 4',

@@ -31,7 +31,7 @@ unitID<-'pacman_13'
 pacman.data <- read.delim(paste0("/home/gustavo/data/CONA/PACMAN/campaign/",unitID,".txt"))
 names(pacman.data)<-c('Count','Year','Month','Day','Hour','Minute','Second',
                       'Distance','Temperature_IN_C','Temperature_mV','PM_mV','CO2_mV','CO_mV','Movement','COstatus')
-pacman.data$Temperature_mV <- pacman.data$Temperature_mV/1000
+pacman.data$Temperature_mV <- (pacman.data$Temperature_mV/100)-273.15
 pacman.data$date<-ISOdatetime(year=pacman.data$Year,
                               month=pacman.data$Month,
                               day=pacman.data$Day,
@@ -49,11 +49,21 @@ pacman.data$CO_mV[!pacman.data$CO_ok] <- NA
 # Inverting CO2
 pacman.data$CO2_mV <- -1 * pacman.data$CO2_mV
 
-# The dust sensor in the pacman didn't work for the first few hours
-# Valid data after 2015-08-14 22:00
-#pacman.data <- subset(pacman.data,subset = date > as.POSIXct('2015-08-14 22:00',tz = 'NZST'))
-# The temperature range is small (1 C) so
-# PM data will not be corrected by temperature
+# PM data correction
+# BASELINE
+pacman.data$PM_mV_drift<-predict(lm(pacman.data$PM_mV~seq(pacman.data$PM_mV)),newdata = pacman.data)
+# Remove the baseline drift from the raw data
+pacman.data$PM_mV.raw <- pacman.data$PM_mV
+pacman.data$PM_mV.detrend<-pacman.data$PM_mV.raw - pacman.data$PM_mV_drift
+
+# Temperature
+## Calculate the temperature interference
+pacman.data$T.bin<-cut(pacman.data$Temperature_mV,breaks = c(16,20,24,28,32),labels = c('18','22','26','30'))
+Temp <- c(18,22,26,30)
+Dust<-tapply(pacman.data$PM_mV.detrend,pacman.data$T.bin,quantile,0.25)
+TC_Dust <- data.frame(PM_mV.detrend = Dust,Temperature_mV = Temp)
+summary(odin.02_T<-lm(data = TC_Dust,PM_mV.detrend~Temperature_mV))
+pacman.data$Dust.corr <- pacman.data$PM_mV.detrend - predict(odin.02_T,newdata = pacman.data)
 
 # Merging the data
 
@@ -78,7 +88,10 @@ timePlot(plot_data,pollutant = c('Temperature.88',
 timePlot(plot_data,pollutant = c('Temp.123','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 hour')
 timePlot(plot_data,pollutant = c('Temp.123','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 day')
 timePlot(plot_data,pollutant = c('Temp.123','CO2_mV','CO_mV','PM_mV','PM10.FDMS'),avg.time = '1 hour', statistic = 'max', main = 'Hourly MAXIMUM')
-
+timePlot(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),avg.time = '1 hour'
+         ,group = TRUE
+         ,main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
+timeVariation(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
 scatterPlot(plot_data,x='Temperature.88','Temp.123',
             main = 'Subject 09',
             xlab = 'iButton',
@@ -91,6 +104,17 @@ scatterPlot(plot_data,x='Temperature_mV','Temp.123',
             xlab = 'PACMAN',
             ylab = 'BRANZ',
             avg.time = '10 min')
+
+diurnal.mov<-try(timeVariation(pacman.data,pollutant='Movement'))
+if (class(diurnal.mov)!="try-error"){
+  ggplot(diurnal.mov$data$hour)+
+    geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red', alpha = 0.3)+
+    geom_line(aes(x=hour,y=Mean),colour='red')+
+    #    facet_grid(~wkday)+
+    #    ggtitle('Movement')+
+    xlab('NZST hour')+
+    ylab('Movement')
+}
 
 subject09.data.1min <- timeAverage(selectByDate(subject.data, start = mindate, end = maxdate),avg.time = '1 min')
 write.csv(subject09.data.1min,'./subject_09.csv')
