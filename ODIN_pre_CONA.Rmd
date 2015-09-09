@@ -1,5 +1,5 @@
 ---
-title: "ODIN pre-CONA deployment"
+title: "ODIN pre-CONA deployment/co-location"
 author: "Gustavo Olivares"
 output: html_document
 ---
@@ -8,14 +8,14 @@ require('openair')
 require('reshape2')
 ```
 ## Introduction
-The purpose of this analysis is to document the performance of the ODIN during their pre-CONA deployment in Christchurch.  
+The purpose of this analysis is to document the performance of the ODIN during their pre-CONA deployment/co-location in Christchurch.  
 
 ## ODIN data
 The units **ODIN_03-07** were deployed at Rangiora (**ODIN_02** failed to record data)
 ```{r load_odin}
 
 ## ODIN_03
-odin_03 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_03.data",
+odin_03 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/co-location/odin_03.data",
                       header=T, quote="")
 #force GMT as the time zone to avoid openair issues with daylight saving switches
 #The actual time zone is 'NZST'
@@ -25,7 +25,7 @@ odin_03$Date<-NULL
 odin_03$Battery<-5*odin_03$Battery/1024
 
 ## ODIN_04
-odin_04 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_04.data",
+odin_04 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/co-location/odin_04.data",
                       header=T, quote="")
 #force GMT as the time zone to avoid openair issues with daylight saving switches
 #The actual time zone is 'NZST'
@@ -35,7 +35,7 @@ odin_04$Date<-NULL
 odin_04$Battery<-5*odin_04$Battery/1024
 
 ## ODIN_05
-odin_05 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_05.data",
+odin_05 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/co-location/odin_05.data",
                       header=T, quote="")
 #force GMT as the time zone to avoid openair issues with daylight saving switches
 #The actual time zone is 'NZST'
@@ -45,7 +45,7 @@ odin_05$Date<-NULL
 odin_05$Battery<-5*odin_05$Battery/1024
 
 ## ODIN_06
-odin_06 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_06.data",
+odin_06 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/co-location/odin_06.data",
                       header=T, quote="")
 #force GMT as the time zone to avoid openair issues with daylight saving switches
 #The actual time zone is 'NZST'
@@ -55,7 +55,7 @@ odin_06$Date<-NULL
 odin_06$Battery<-5*odin_06$Battery/1024
 
 ## ODIN_07
-odin_07 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_07.data",
+odin_07 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/co-location/odin_07.data",
                       header=T, quote="")
 #force GMT as the time zone to avoid openair issues with daylight saving switches
 #The actual time zone is 'NZST'
