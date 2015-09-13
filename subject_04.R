@@ -124,9 +124,25 @@ if (class(diurnal.mov)!="try-error"){
 }
 
 
-
-
-
+diurnal.temp<-try(timeVariation(plot_data,pollutant = c('Temperature.C2',
+                                                   'Temp.191',
+                                                   'Temperature_mV',
+                                                   'Temperature.2m'),
+                           # avg.time = '10 min',
+                           #normalise = 'mean',
+                           # group = TRUE,
+                           main = 'Subject 4',
+                           name.pol = c('iButton','BRANZ','PACMAN','Outdoor'),
+                           ylab = 'Temperature [C]'))
+if (class(diurnal.temp)!="try-error"){
+  ggplot(diurnal.temp$data$hour)+
+    geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper, fill=variable), alpha = 0.3)+
+    geom_line(aes(x=hour,y=Mean,colour = variable))+
+    # facet_grid(variable~.)+
+    # ggtitle('Temperature')+
+    xlab('NZST hour')+
+    ylab('Temperature')
+}
 
 
 subject04.data.1min <- timeAverage(plot_data ,avg.time = '1 min')
