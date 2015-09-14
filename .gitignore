@@ -14,4 +14,4 @@ vignettes/*.pdf
 *.html
 *.csv
 *.png
-ecan_data.csv
+*.zip
