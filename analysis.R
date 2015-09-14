@@ -117,17 +117,11 @@ long_temperature.10min <- timeAverage(long_temperature,avg.time = '10 min')
 
 timeVariation(long_temperature.10min,pollutant = c('T.iButtons','T.BRANZ','T.2m','T.6m'))
 
-diurnal.Temperatures<-timeVariation(all_temp.10min,pollutant = c('Temperature.1B',
-  'Temperature.3D',
-  'Temperature.88',
-  'Temperature.A5',
-  'Temperature.C2',
-  'Temperature.D2',
-  'Temperature.2m',
-  'Temperature.6m'))
+diurnal.Temperatures<-timeVariation(long_temperature.10min,pollutant = c('T.iButtons','T.BRANZ','T.2m'),statistic = 'median', conf.int = 0.75)
 
 ggplot(diurnal.Temperatures$data$hour)+
-  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper,colour = variable,fill  = variable))+
+  geom_ribbon(aes(x=hour,ymin=Lower, ymax = Upper,fill = variable, colour = variable), alpha = 0.3) +
+  #,colour = variable,fill  = variable))+
   #geom_line(aes(x=hour,y=Mean,colour r a = variable),colour=variable)+
   #scale_colour_discrete()+
   ggtitle('Temperature')+
