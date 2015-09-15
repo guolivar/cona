@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/107937/989ef3fd1cba4c0fb065d93ed1d970cb
+url: http://rpubs.com/guolivar/107937/edit
+when: 1441802801.84438
