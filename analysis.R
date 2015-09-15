@@ -81,12 +81,27 @@ scatterPlot(plot_data,x='Temperature.1B','Temp.166',
 mindate <- format(max(min(iB_C200000026F9BE41$date),min(HUV191$date),min(ecan_data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_C200000026F9BE41$date),max(HUV191$date),max(ecan_data$date)),format = '%Y-%m-%d')
 plot_data <- selectByDate(all_temp.10min, start = mindate, end = maxdate)
+plot_data$deltaC2_out <- plot_data$Temperature.C2 - plot_data$Temperature.2m
+plot_data$delta191_out <- plot_data$Temp.191 - plot_data$Temperature.2m
 timePlot(plot_data,pollutant = c('Temperature.C2',
                                  'Temp.191',
                                  'Temperature.2m'),
          group = TRUE, main = 'Subject 04',
          name.pol = c('iButton','BRANZ','Outdoor'),
          ylab = 'Temperature [C]')
+
+timePlot(plot_data,pollutant = c('deltaC2_out','delta191_out')
+         ,group = TRUE, main = 'Subject 04'
+         ,name.pol = c('iButton - out','BRANZ - out')
+         ,ylab = 'Temperature [C]')
+
+timeVariation(plot_data,pollutant = c('deltaC2_out','delta191_out')
+         ,main = 'Subject 04'
+         ,name.pol = c('iButton - out','BRANZ - out')
+         )
+
+
+
 scatterPlot(plot_data,x='Temperature.C2','Temp.191',
             main = 'Subject 04',
             xlab = 'iButton',
