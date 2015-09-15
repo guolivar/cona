@@ -17,7 +17,7 @@ odin_02$date=as.POSIXct(paste(odin_02$Date,odin_02$Time),tz='NZST')
 odin_02$Time<-NULL
 odin_02$Date<-NULL
 odin_02$Batt<-5*odin_02$Batt/1024
-timePlot(odin_02,pollutant = c('Dust','Temp'))
+summary(odin_02)
 
 
 ## ODIN_03
@@ -28,7 +28,7 @@ odin_03$date=as.POSIXct(paste(odin_03$Date,odin_03$Time),tz='NZST')
 odin_03$Time<-NULL
 odin_03$Date<-NULL
 odin_03$Batt<-5*odin_03$Batt/1024
-timePlot(odin_03,pollutant = c('Dust','Temp'))
+summary(odin_03)
 
 ## ODIN_04
 odin_04 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_04.data",
@@ -38,7 +38,7 @@ odin_04$date=as.POSIXct(paste(odin_04$Date,odin_04$Time),tz='NZST')
 odin_04$Time<-NULL
 odin_04$Date<-NULL
 odin_04$Batt<-5*odin_04$Batt/1024
-timePlot(odin_04,pollutant = c('Dust','Temp'))
+summary(odin_04)
 
 ## ODIN_05
 odin_05 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_05.data",
@@ -48,7 +48,7 @@ odin_05$date=as.POSIXct(paste(odin_05$Date,odin_05$Time),tz='NZST')
 odin_05$Time<-NULL
 odin_05$Date<-NULL
 odin_05$Batt<-5*odin_05$Batt/1024
-timePlot(odin_05,pollutant = c('Dust','Temp'))
+summary(odin_05)
 
 ## ODIN_06
 odin_06 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_06.data",
@@ -59,7 +59,7 @@ odin_06$date=as.POSIXct(paste(odin_06$Date,odin_06$Time),tz='NZST')
 odin_06$Time<-NULL
 odin_06$Date<-NULL
 odin_06$Batt<-5*odin_06$Batt/1024
-timePlot(odin_06,pollutant = c('Dust','Temp'))
+summary(odin_06)
 
 ## ODIN_07.
 odin_07 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_07.data",
@@ -69,7 +69,7 @@ odin_07$date=as.POSIXct(paste(odin_07$Date,odin_07$Time),tz='NZST')
 odin_07$Time<-NULL
 odin_07$Date<-NULL
 odin_07$Batt<-5*odin_07$Batt/1024
-timePlot(odin_07,pollutant = c('Dust','Temp'))
+summary(odin_07)
 
 # Load ECan data
 
@@ -79,7 +79,6 @@ system("sed -i 's/p.m./PM/g' ecan_data.csv")
 ecan_data_raw <- read.csv("ecan_data.csv",stringsAsFactors=FALSE)
 ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='NZST')
 ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10.FDMS','Temperature..2m')])
-names(ecan_data)<-c('date','PM10.FDMS','Temperature..1m')
 
 ## Merging the data
 # ECan's data was provided as 10 minute values while ODIN reports every 1 minute so before merging the data, the timebase must be homogenized
@@ -100,7 +99,7 @@ odin <- selectByDate(odin,start = '2015-08-15',end = '2015-09-10')
 odin.10min<-timeAverage(odin,avg.time='10 min')
 all_merged.1min<-merge(odin,ecan_data,by='date',all=TRUE)
 all_merged.10min<-timeAverage(all_merged.1min,avg.time = '10 min')
-timePlot(all_merged.10min,pollutant = c('Temperature..1m',
+timePlot(all_merged.10min,pollutant = c('Temperature..2m',
                                         'Temperature.02',
                                         'Temperature.03',
                                         'Temperature.04',
@@ -110,7 +109,7 @@ timePlot(all_merged.10min,pollutant = c('Temperature..1m',
 ## Time sync
 
 lag_test=ccf(all_merged.10min$Temperature.05,
-             all_merged.10min$Temperature..1m,
+             all_merged.10min$Temperature..2m,
              na.action=na.pass,
              lag.max=100,
              type='covariance',
@@ -123,7 +122,7 @@ odin$date=odin$date-odin_lag*10*60
 odin.10min<-timeAverage(odin,avg.time='10 min')
 all_merged.10min<-merge(odin.10min,ecan_data,by='date',all=TRUE)
 lag_test=ccf(all_merged.10min$Temperature.05,
-             all_merged.10min$Temperature..1m,
+             all_merged.10min$Temperature..2m,
              na.action=na.pass,
              lag.max=100,
              type='covariance',
@@ -168,10 +167,9 @@ all_merged.10min$Dust.05.detrend<-all_merged.10min$Dust.05.raw
 all_merged.10min$Dust.06.detrend<-all_merged.10min$Dust.06.raw
 # all_merged.10min$Dust.07.detrend<-all_merged.10min$Dust.07.raw
 
-## Estimate temperature for ODIN 02 as the average of all the other temperatures (which are very well correlated)
+## Remove ODIN_02 data that doesn't have valid temperature with it
 no_TRH_sensor.02<-(all_merged.10min$RH.02==0)|(is.na(all_merged.10min$RH.02))
 all_merged.10min$Temperature.02[no_TRH_sensor.02] <- NA
-  # with(all_merged.10min,(Temperature.04[no_TRH_sensor.02]+Temperature.05[no_TRH_sensor.02]+Temperature.06[no_TRH_sensor.02])/3)
 
 ## Calculate the temperature interference
 all_merged.10min$Temperature.02.bin<-cut(all_merged.10min$Temperature.02,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
@@ -233,78 +231,6 @@ timePlot(all_merged.10min,pollutant = c('PM10.FDMS',
          ,avg.time = '60 min'
          ,main = '60 min')
 
-timebase = '1 hour'
-timePlot(all_merged.10min,pollutant = c('PM10.FDMS',
-                                      'Dust.02.corr',
-                                      # 'Dust.03.corr',
-                                      'Dust.04.corr',
-                                      'Dust.05.corr',
-                                      'Dust.06.corr',
-                                      'Dust.07.corr'
-                                      )
-         ,group = TRUE
-         ,normalise = 'mean'
-         ,avg.time = timebase
-         ,main = timebase)
-
-TV_norm <- timeVariation(all_merged.10min,pollutant = c('PM10.FDMS'
-                                                      ,'Dust.02.corr'
-                                                      ,'Dust.03.corr'
-                                                      ,'Dust.04.corr'
-                                                      ,'Dust.05.corr'
-                                                      ,'Dust.06.corr'
-                                                      ,'Dust.07.corr'
-                                                      )
-                         ,normalise = TRUE)
-
-ggplot(TV_norm$data$hour)+
-  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red', alpha = 0.3)+
-  geom_line(aes(x=hour,y=Mean))+
-  facet_grid(variable~.)+
-  ggtitle('Movement')+
-  xlab('NZST hour')+
-  ylab('Corrected Dust [mV]')
-
-timebase = '1 hour'
-start_date = as.POSIXct('2015-08-15')
-for (xday in (0:25)){
-  current_day = format(start_date + xday*24*3600,'%Y-%m-%d')
-  plot_data <- selectByDate(all_merged.10min,start = current_day, end = current_day)
-  png(paste0('./tseries_',current_day,'.png'),width = 1024, height = 1024)
-  timePlot(plot_data,pollutant = c('PM10.FDMS'
-                                   ,'Dust.02.corr'
-                                   ,'Dust.03.corr'
-                                   ,'Dust.04.corr'
-                                   ,'Dust.05.corr'
-                                   ,'Dust.06.corr'
-                                   ,'Dust.07.corr'
-                                   )
-           ,group = FALSE
-           #,normalise = 'mean'
-           ,avg.time = timebase
-           ,main = paste(current_day,timebase)
-           )
-  dev.off()
-}
-
-
-timePlot(all_merged.10min,pollutant = c('Temperature.07','Dust.07.raw','Dust.07.detrend','Dust.07.corr'))
-
-
-
-
-timePlot(all_merged.10min,pollutant = c('Temperature..1m'
-                                      ,'Temperature.02'
-                                      ,'Temperature.03'
-                                      ,'Temperature.04'
-                                      ,'Temperature.05'
-                                      ,'Temperature.06'
-                                      ,'Temperature.07')
-,group = TRUE
-,avg.time = '1 hour'
-,main = '1 hour'
-)
-
 
 timePlot(all_merged.10min,pollutant = c('PM10.FDMS'
                                         ,'Dust.02.corr'
@@ -316,14 +242,24 @@ timePlot(all_merged.10min,pollutant = c('PM10.FDMS'
          ,group = TRUE
          ,normalise = 'mean'
          ,avg.time = '1 day'
-         ,main = '1 day'
+         ,main = '24 hour time series'
 )
 
+TV_norm <- timeVariation(all_merged.10min,pollutant = c('PM10.FDMS'
+                                                        ,'Dust.02.corr'
+                                                        ,'Dust.03.corr'
+                                                        ,'Dust.04.corr'
+                                                        ,'Dust.05.corr'
+                                                        ,'Dust.06.corr'
+                                                        ,'Dust.07.corr'
+)
+,normalise = TRUE
+,plot = FALSE)
 
-ggplot(data = all_merged.10min,aes(x = date)) +
-  geom_line(aes(y = Dust.07.raw,colour = 'Raw')) +
-  geom_line(aes(y = Dust.07, colour = 'Raw2')) +
-  geom_line(aes(y = Dust.07.detrend, colour = 'Detrend')) +
-  ylab('Dust [mV]')
-  
-
+ggplot(TV_norm$data$hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper),fill='red', alpha = 0.3)+
+  geom_line(aes(x=hour,y=Mean))+
+  facet_grid(variable~.)+
+  ggtitle('Average diurnal variation')+
+  xlab('NZST hour')+
+  ylab('Normalised value')
