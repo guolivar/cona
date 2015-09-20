@@ -1,16 +1,23 @@
 #CONA MET
 library('openair')
-rangiora.0.1 <- read.csv("~/data/CONA/from_work/MET/rangiora_0.csv")
-rangiora.1_1 <- read.csv("~/data/CONA/from_work/MET/rangiora_1.csv")
-rangiora.2_1 <- read.csv("~/data/CONA/from_work/MET/rangiora_2.csv")
-rangiora.3_1 <- read.csv("~/data/CONA/from_work/MET/rangiora_3.csv")
-rangiora.0_1$date <- as.POSIXct(paste(rangiora.1_1$Date,rangiora.1_1$Time),format = '%d/%m/%Y %H:%M:%S')
+rangiora.0_1 <- read.csv("~/data/CONA/MET/rangiora_0.csv")
+rangiora.1_1 <- read.csv("~/data/CONA/MET/rangiora_1.csv")
+rangiora.2_1 <- read.csv("~/data/CONA/MET/rangiora_2.csv")
+rangiora.3_1 <- read.csv("~/data/CONA/MET/rangiora_3.csv")
+rangiora.0_1$date <- as.POSIXct(paste(rangiora.0_1$Date,rangiora.0_1$Time),format = '%d/%m/%Y %H:%M:%S')
 rangiora.0_1$Date<-NULL
 rangiora.0_1$Time<-NULL
-names(rangiora.0_1)<-c('wd.0.1','Tmin.0.1','Tmax.0.1','Tavg.0.1','rh.0.1','pres.0.1','sd.wd.0.1','gust.wd.0.1','ws.0.1','sd.ws.0.1','gust.ws.0.1','batt.0.1','date')
+names(rangiora.0_1)<-c('ws.0.1','wd.0.1','sd.wd.0.1', 'sd.ws.0.1','Tavg.0.1','rh.0.1','rain.0.1','pres.0.1','srad.0.1','soilM.0.1','batt.0.1','date')
 rangiora.1_1$date <- as.POSIXct(paste(rangiora.1_1$Date,rangiora.1_1$Time),format = '%d/%m/%Y %H:%M:%S')
 rangiora.1_1$Date<-NULL
 rangiora.1_1$Time<-NULL
+
+# NEED TO REARRANGE NAMES FOR NEON DATA DUMP
+#[1] "Date"    "Time"   "Temperature.AVG...degC."  "Temperature.MIN...degC.."        "Temperature.MAX...degC.."
+#[6] "RH.AVG...pct.."      "Barometric.Pressure.AVG...hPa.." "Mean.WD.RAW...degN.."            "SD.WD.RAW...degN.."              "Gust.WD.RAW...degN.."
+#[11] "Mean.WS.RAW...m.s.."    "SD.WS.RAW...m.s.."               "Gust.WS.RAW...m.s.."             "External.Supply.RAW...mV.." 
+
+
 names(rangiora.1_1)<-c('wd.1.1','Tmin.1.1','Tmax.1.1','Tavg.1.1','rh.1.1','pres.1.1','sd.wd.1.1','gust.wd.1.1','ws.1.1','sd.ws.1.1','gust.ws.1.1','batt.1.1','date')
 rangiora.2_1$date <- as.POSIXct(paste(rangiora.2_1$Date,rangiora.2_1$Time),format = '%d/%m/%Y %H:%M:%S')
 rangiora.2_1$Date<-NULL
