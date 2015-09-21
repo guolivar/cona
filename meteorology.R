@@ -83,7 +83,7 @@ timePlot(met_data,pollutant = c('wd.0.1','wd.1.1','wd.2.1','wd.3.1'),group = TRU
 timePlot(met_data,pollutant = c('rh.0.1','rh.1.1','rh.2.1','rh.3.1'),group = TRUE)
 timePlot(met_data,pollutant = c('ws.0.1','ws.1.1','ws.2.1','ws.3.1'),group = TRUE)
 timePlot(met_data,pollutant = c('pres.0.1','pres.1.1','pres.2.1','pres.3.1'),group = TRUE)
-timePlot(met_data,pollutant = c('batt.0.1','batt.1.1','batt.2.1','batt.3.1'),group = TRUE)
+timePlot(met_data,pollutant = c('batt.1.1','batt.2.1','batt.3.1'),group = TRUE)
 
 scatterPlot(met_data,x='ws.2.1',y='ws.3.1')
 scatterPlot(met_data,x='Tavg.0.1',y='Tavg.1.1')
