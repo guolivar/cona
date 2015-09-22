@@ -79,3 +79,4 @@ delta_long$Temperature_MET <- max_long$Temperature_MET - min_long$Temperature_ME
 delta_long$Temperature_ODIN <- max_long$Temperature_ODIN - min_long$Temperature_ODIN
 
 timeVariation(delta_long,pollutant = c('Temperature_ODIN','Temperature_MET'))
+timeVariation(analysis.data.long,pollutant = c('Temperature_ODIN','Temperature_MET'))
