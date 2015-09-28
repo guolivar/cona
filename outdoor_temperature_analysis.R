@@ -52,6 +52,7 @@ timeVariation(analysis.data,pollutant = c('Temperature..2m'
 )
 )
 
+
 # Extract daytime, nighttime datasets
 
 analysis.data.nighttime <- selectByDate(analysis.data,hour = c(19,20,21,22,23,0,1,2,3,4,5,6,7))
@@ -93,8 +94,10 @@ delta_long <- max_long
 delta_long$Temperature_MET <- max_long$Temperature_MET - min_long$Temperature_MET
 delta_long$Temperature_ODIN <- max_long$Temperature_ODIN - min_long$Temperature_ODIN
 
+
 timeVariation(delta_long,pollutant = c('Temperature_ODIN','Temperature_MET'))
 analysis.data.long <- selectByDate(analysis.data.long,start = '2015-08-17',end = '2015-09-07')
+
 
 tv_1 <- timeVariation(analysis.data.long,pollutant = c('Temperature_ODIN','Temperature_MET'))
 ggplot(tv_1$data$hour)+
