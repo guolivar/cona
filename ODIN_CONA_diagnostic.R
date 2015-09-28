@@ -78,7 +78,7 @@ system("sed -i 's/a.m./AM/g' ecan_data.csv")
 system("sed -i 's/p.m./PM/g' ecan_data.csv")
 ecan_data_raw <- read.csv("ecan_data.csv",stringsAsFactors=FALSE)
 ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='NZST')
-ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10.FDMS','Temperature..2m')])
+ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10.FDMS','Temperature..2m','Temperature..6m')])
 
 ## Merging the data
 # ECan's data was provided as 10 minute values while ODIN reports every 1 minute so before merging the data, the timebase must be homogenized
