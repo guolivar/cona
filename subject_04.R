@@ -62,15 +62,37 @@ pacman.data$T.bin<-cut(pacman.data$Temperature_mV,breaks = c(25,27,29,31),labels
 Temp <- c(26,28,30)
 Dust<-tapply(pacman.data$PM_mV.detrend,pacman.data$T.bin,quantile,0.25)
 TC_Dust <- data.frame(PM_mV.detrend = Dust,Temperature_mV = Temp)
-summary(odin.02_T<-lm(data = TC_Dust,PM_mV.detrend~Temperature_mV))
-pacman.data$Dust.corr <- pacman.data$PM_mV.detrend - predict(odin.02_T,newdata = pacman.data)
+summary(pacman_T<-lm(data = TC_Dust,PM_mV.detrend~Temperature_mV))
+pacman.data$Dust.corr.in <- pacman.data$PM_mV.detrend - predict(pacman_T,newdata = pacman.data)
 
+# ODIN
+odin <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_06.data",
+                      header=T, quote="")
+
+odin$date=as.POSIXct(paste(odin$Date,odin$Time),tz='NZST')
+odin$Time<-NULL
+odin$Date<-NULL
+odin$Batt<-5*odin$Batt/1024
+
+odin$Dust_drift<-predict(lm(odin$Dust~seq(odin$Dust)),newdata = odin)
+odin$Dust.raw <- odin$Dust
+odin$Dust.detrend<-odin$Dust.raw - odin$Dust_drift
+# No drift correction test
+odin$Dust.detrend<-odin$Dust.raw
+#Temperature correction
+odin$Temperature.bin<-cut(odin$Temp,breaks = c(0,5,10,15,20,25),labels = c('2.5','7.5','12.5','17.5','22.5'))
+Temp <- c(2.5,7.5,12.5,17.5,22.5)
+Dust<-tapply(odin$Dust.detrend,odin$Temperature.bin,quantile,0.25)
+TC_Dust <- data.frame(Dust.detrend = Dust,Temp = Temp)
+summary(odin_T<-lm(data = TC_Dust,Dust.detrend~Temp))
+odin$Dust.corr.out <- odin$Dust.detrend - predict(odin_T, newdata = odin)
 
 # Merging the data
 
 subject.data <- merge(iB_C200000026F9BE41,HUV191,by = 'date', all = TRUE)
 subject.data <- merge(subject.data,pacman.data, by = 'date', all = TRUE)
 subject.data <- merge(subject.data,ecan_data, by = 'date', all = TRUE)
+subject.data <- merge(subject.data,odin, by = 'date', all = TRUE)
 subject.data.10min <- timeAverage(subject.data,avg.time = '10 min')
 
 # Subject 4
@@ -87,16 +109,14 @@ timePlot(plot_data,pollutant = c('Temperature.C2',
          name.pol = c('iButton','BRANZ','PACMAN'),
          ylab = 'Temperature [C]')
 
-timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr','PM10.FDMS'),avg.time = '1 hour')
-timePlot(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),avg.time = '1 hour'
+timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr.in','Dust.corr.out','PM10.FDMS'),avg.time = '1 hour')
+timePlot(plot_data,pollutant = c('Dust.corr.in','Dust.corr.out','PM10.FDMS'),avg.time = '1 hour'
          ,group = TRUE
+         ,normalise = 'mean'
          ,main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
 timePlot(plot_data,pollutant = c('Temp.191','Temperature_mV'),avg.time = '1 hour', ylab = 'Temperature [C]', group = TRUE,nname.pol = c('BRANZ','PACMAN'))
 
-timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr','PM10.FDMS'),avg.time = '1 day')
-timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr','PM10.FDMS'),avg.time = '1 hour', statistic = 'max', main = 'Hourly MAXIMUM')
-timeVariation(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV'),normalise = TRUE)
-timeVariation(plot_data,pollutant = c('Dust.corr','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
+timePlot(plot_data,pollutant = c('Temp.191','CO2_mV','CO_mV','Dust.corr.in','Dust.corr.out','PM10.FDMS'),avg.time = '1 day')
 
 scatterPlot(plot_data,x='Temperature.C2','Temp.191',
             main = 'Subject 4',
@@ -144,6 +164,14 @@ if (class(diurnal.temp)!="try-error"){
     ylab('Temperature')
 }
 
+diurnal.dust <- timeVariation(plot_data,pollutant = c('Dust.corr.in','Dust.corr.out','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
+ggplot(diurnal.dust$data$hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper, fill=variable), alpha = 0.3)+
+  geom_line(aes(x=hour,y=Mean,colour = variable))+
+  # facet_grid(variable~.)+
+  # ggtitle('Dust')+
+  xlab('NZST hour')+
+  ylab('Dust')
 
 subject04.data.1min <- timeAverage(plot_data ,avg.time = '1 min')
 write.csv(subject04.data.1min,'./subject_04.csv')

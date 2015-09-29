@@ -263,3 +263,8 @@ ggplot(TV_norm$data$hour)+
   ggtitle('Average diurnal variation')+
   xlab('NZST hour')+
   ylab('Normalised value')
+
+
+timePlot(all_merged.10min,pollutant = c('Dust.05.corr'
+                                        ,'Dust.06.corr')
+         ,group = TRUE)
