@@ -17,7 +17,7 @@ odin_02$date=as.POSIXct(paste(odin_02$Date,odin_02$Time),tz='NZST')
 odin_02$Time<-NULL
 odin_02$Date<-NULL
 odin_02$Batt<-5*odin_02$Batt/1024
-timePlot(odin_02,pollutant = c('Dust','Temperature'))
+timePlot(odin_02,pollutant = c('Dust','Temperature'), main = 'ODIN 02')
 
 
 ## ODIN_03
@@ -28,7 +28,7 @@ odin_03$date=as.POSIXct(paste(odin_03$Date,odin_03$Time),tz='NZST')
 odin_03$Time<-NULL
 odin_03$Date<-NULL
 odin_03$Batt<-5*odin_03$Batt/1024
-timePlot(odin_03,pollutant = c('Dust','Temperature'))
+timePlot(odin_03,pollutant = c('Dust','Temperature'), main = 'ODIN 03')
 
 ## ODIN_04
 odin_04 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_04.data",
@@ -38,7 +38,7 @@ odin_04$date=as.POSIXct(paste(odin_04$Date,odin_04$Time),tz='NZST')
 odin_04$Time<-NULL
 odin_04$Date<-NULL
 odin_04$Batt<-5*odin_04$Batt/1024
-timePlot(odin_04,pollutant = c('Dust','Temperature'))
+timePlot(odin_04,pollutant = c('Dust','Temperature'), main = 'ODIN 04')
 
 ## ODIN_05
 odin_05 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_05.data",
@@ -48,7 +48,7 @@ odin_05$date=as.POSIXct(paste(odin_05$Date,odin_05$Time),tz='NZST')
 odin_05$Time<-NULL
 odin_05$Date<-NULL
 odin_05$Batt<-5*odin_05$Batt/1024
-timePlot(odin_05,pollutant = c('Dust','Temperature'))
+timePlot(odin_05,pollutant = c('Dust','Temperature'), main = 'ODIN 05')
 
 ## ODIN_06
 odin_06 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_06.data",
@@ -59,7 +59,7 @@ odin_06$date=as.POSIXct(paste(odin_06$Date,odin_06$Time),tz='NZST')
 odin_06$Time<-NULL
 odin_06$Date<-NULL
 odin_06$Batt<-5*odin_06$Batt/1024
-timePlot(odin_06,pollutant = c('Dust','Temperature'))
+timePlot(odin_06,pollutant = c('Dust','Temperature'), main = 'ODIN 06')
 
 ## ODIN_07.
 odin_07 <- read.table("/home/gustavo/data/CONA/ODIN/deployment/odin_07.data",
@@ -69,7 +69,7 @@ odin_07$date=as.POSIXct(paste(odin_07$Date,odin_07$Time),tz='NZST')
 odin_07$Time<-NULL
 odin_07$Date<-NULL
 odin_07$Batt<-5*odin_07$Batt/1024
-timePlot(odin_07,pollutant = c('Dust','Temperature'))
+timePlot(odin_07,pollutant = c('Dust','Temperature'), main = 'ODIN 07')
 
 # Load ECan data
 
