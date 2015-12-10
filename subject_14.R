@@ -150,8 +150,28 @@ if (class(diurnal.mov)!="try-error"){
     ggtitle('Subject 14')
 }
 
-diurnal.dust <- timeVariation(plot_data,pollutant = c('Dust.corr.in','Dust.corr.out','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 [ug/m3] and Dust [mV]')
+diurnal.dust <- timeVariation(plot_data,pollutant = c('Dust.corr.in','PM10.FDMS'),normalise = TRUE, main = 'Indoor / Outdoor', ylab = 'PM10 and Dust [normalised]')
 ggplot(diurnal.dust$data$hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper, fill=variable), alpha = 0.3)+
+  geom_line(aes(x=hour,y=Mean,colour = variable))+
+  # facet_grid(variable~.)+
+  # ggtitle('Dust')+
+  xlab('NZST hour')+
+  ylab('Dust')+
+  ggtitle('Subject 14')
+
+diurnal.temperature <- timeVariation(plot_data,pollutant = c('Temp.094','Temperature.DD','Temperature_mV'), main = 'Temperature of various sensors', ylab = 'Temperature [C]')
+ggplot(diurnal.temperature$data$hour)+
+  geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper, fill=variable), alpha = 0.3)+
+  geom_line(aes(x=hour,y=Mean,colour = variable))+
+  # facet_grid(variable~.)+
+  # ggtitle('Dust')+
+  xlab('NZST hour')+
+  ylab('Dust')+
+  ggtitle('Subject 14')
+
+diurnal.pacman <- timeVariation(plot_data,pollutant = c('Temperature_mV','CO_mV','CO2_mV','Dust.corr.in','Movement'), normalise = TRUE, main = 'Temperature of various sensors', ylab = 'Temperature [C]')
+ggplot(diurnal.pacman$data$hour)+
   geom_ribbon(aes(x=hour,ymin=Lower,ymax=Upper, fill=variable), alpha = 0.3)+
   geom_line(aes(x=hour,y=Mean,colour = variable))+
   # facet_grid(variable~.)+
