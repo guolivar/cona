@@ -3,9 +3,9 @@ library('openair')
 library('ggplot2')
 
 # ECan
-download.file(url = "http://data.ecan.govt.nz/data/29/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(Hourly)/CSV?SiteId=5&StartDate=01%2F09%2F2015&EndDate=30%2F09%2F2015",destfile = "ecan_data.csv",method = "curl")
-system("sed -i 's/a.m./AM/g' ecan_data.csv")
-system("sed -i 's/p.m./PM/g' ecan_data.csv")
+# download.file(url = "http://data.ecan.govt.nz/data/29/Air/Air%20quality%20data%20for%20a%20monitored%20site%20(Hourly)/CSV?SiteId=5&StartDate=01%2F08%2F2015&EndDate=30%2F09%2F2015",destfile = "ecan_data.csv",method = "curl")
+# system("sed -i 's/a.m./AM/g' ecan_data.csv")
+# system("sed -i 's/p.m./PM/g' ecan_data.csv")
 ecan_data_raw <- read.csv("ecan_data.csv",stringsAsFactors=FALSE)
 ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='GMT')
 ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10.FDMS','Temperature..2m','Temperature..6m','Wind.Speed','Wind.Direction')])
@@ -107,6 +107,7 @@ subject.data.10min <- timeAverage(subject.data,avg.time = '10 min')
 mindate <- format(max(min(iB_DD00000026F32041$date),min(HUV094$date),min(ecan_data$date),min(pacman.data$date)),format = '%Y-%m-%d')
 maxdate <- format(min(max(iB_DD00000026F32041$date),max(HUV094$date),max(ecan_data$date),max(pacman.data$date)),format = '%Y-%m-%d')
 plot_data <- selectByDate(subject.data.10min, start = mindate, end = maxdate)
+plot_data<-subject.data.10min
 timePlot(plot_data,pollutant = c('Temperature.DD',
                                  'Temp.094',
                                  'Temperature_mV',
