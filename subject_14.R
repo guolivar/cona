@@ -8,7 +8,7 @@ system("sed -i 's/a.m./AM/g' ecan_data.csv")
 system("sed -i 's/p.m./PM/g' ecan_data.csv")
 ecan_data_raw <- read.csv("ecan_data.csv",stringsAsFactors=FALSE)
 ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='GMT')
-ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10.FDMS','Temperature..2m','Temperature..6m','Wind.Speed','Wind.Direction')])
+ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM10..ug.m3.','Temperature.2m..DegC.','Temperature.6m..DegC.','Wind.speed..m.s.','Wind.direction..Deg.')])
 names(ecan_data)<- c('date','PM10.FDMS','Temperature.2m','Temperature.6m','ws','wd')
 
 # iButton
