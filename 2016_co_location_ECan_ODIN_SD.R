@@ -1,7 +1,9 @@
 #' # ODIN-SD test at Rangiora - July 2016
 library('ggplot2')
 library('openair')
-
+# Mute some warnings
+oldw <- getOption("warn")
+options(warn = -1)
 #' # Load Data
 # ECan data ####
 base_dir <- '//home/gustavo/data/CONA/2016/ODIN/ecan_site/'
@@ -345,8 +347,113 @@ merged.data <- merge(merged.data,odin.sd.113.data,by = 'date',all = TRUE)
 merged.data <- merge(merged.data,odin.sd.114.data,by = 'date',all = TRUE)
 merged.data <- merge(merged.data,odin.sd.115.data,by = 'date',all = TRUE)
 merged.data <- merge(merged.data,ecan_data,by = 'date',all = TRUE)
-merged.data.10min <- timeAverage(merged.data,avg.time = '10 min')
+# Bring everything to 1 hour
 merged.data.1hr <- timeAverage(merged.data,avg.time = '1 hour')
+# Creating aux series for range of ODIN readings
+merged.data.1hr$Temperature.min <- apply(merged.data.1hr[,c('Temperature.103',
+                                                    'Temperature.105',
+                                                    'Temperature.106',
+                                                    'Temperature.107',
+                                                    'Temperature.108',
+                                                    'Temperature.109',
+                                                    'Temperature.111',
+                                                    'Temperature.113',
+                                                    'Temperature.114',
+                                                    'Temperature.115')],1,min, na.rm=TRUE)
+merged.data.1hr$Temperature.max <- apply(merged.data.1hr[,c('Temperature.103',
+                                                    'Temperature.105',
+                                                    'Temperature.106',
+                                                    'Temperature.107',
+                                                    'Temperature.108',
+                                                    'Temperature.109',
+                                                    'Temperature.111',
+                                                    'Temperature.113',
+                                                    'Temperature.114',
+                                                    'Temperature.115')],1,max, na.rm=TRUE)
+
+merged.data.1hr$RH.min <- apply(merged.data.1hr[,c('RH.103',
+                                                    'RH.105',
+                                                    'RH.106',
+                                                    'RH.107',
+                                                    'RH.108',
+                                                    'RH.109',
+                                                    'RH.111',
+                                                    'RH.113',
+                                                    'RH.114',
+                                                    'RH.115')],1,min, na.rm=TRUE)
+merged.data.1hr$RH.max <- apply(merged.data.1hr[,c('RH.103',
+                                                    'RH.105',
+                                                    'RH.106',
+                                                    'RH.107',
+                                                    'RH.108',
+                                                    'RH.109',
+                                                    'RH.111',
+                                                    'RH.113',
+                                                    'RH.114',
+                                                    'RH.115')],1,max, na.rm=TRUE)
+
+merged.data.1hr$PM1.min <- apply(merged.data.1hr[,c('PM1.103',
+                                            'PM1.105',
+                                            'PM1.106',
+                                            'PM1.107',
+                                            'PM1.108',
+                                            'PM1.109',
+                                            'PM1.111',
+                                            'PM1.113',
+                                            'PM1.114',
+                                            'PM1.115')],1,min,na.rm=TRUE)
+merged.data.1hr$PM1.max <- apply(merged.data.1hr[,c('PM1.103',
+                                            'PM1.105',
+                                            'PM1.106',
+                                            'PM1.107',
+                                            'PM1.108',
+                                            'PM1.109',
+                                            'PM1.111',
+                                            'PM1.113',
+                                            'PM1.114',
+                                            'PM1.115')],1,max,na.rm=TRUE)
+
+merged.data.1hr$PM2.5.min <- apply(merged.data.1hr[,c('PM2.5.103',
+                                              'PM2.5.105',
+                                              'PM2.5.106',
+                                              'PM2.5.107',
+                                              'PM2.5.108',
+                                              'PM2.5.109',
+                                              'PM2.5.111',
+                                              'PM2.5.113',
+                                              'PM2.5.114',
+                                              'PM2.5.115')],1,min,na.rm=TRUE)
+merged.data.1hr$PM2.5.max <- apply(merged.data.1hr[,c('PM2.5.103',
+                                              'PM2.5.105',
+                                              'PM2.5.106',
+                                              'PM2.5.107',
+                                              'PM2.5.108',
+                                              'PM2.5.109',
+                                              'PM2.5.111',
+                                              'PM2.5.113',
+                                              'PM2.5.114',
+                                              'PM2.5.115')],1,max,na.rm=TRUE)
+
+merged.data.1hr$PM10.min <- apply(merged.data.1hr[,c('PM10.103',
+                                             'PM10.105',
+                                             'PM10.106',
+                                             'PM10.107',
+                                             'PM10.108',
+                                             'PM10.109',
+                                             'PM10.111',
+                                             'PM10.113',
+                                             'PM10.114',
+                                             'PM10.115')],1,min,na.rm=TRUE)
+merged.data.1hr$PM10.max <- apply(merged.data.1hr[,c('PM10.103',
+                                             'PM10.105',
+                                             'PM10.106',
+                                             'PM10.107',
+                                             'PM10.108',
+                                             'PM10.109',
+                                             'PM10.111',
+                                             'PM10.113',
+                                             'PM10.114',
+                                             'PM10.115')],1,max,na.rm=TRUE)
 
 #' # Time Series Plots
 
@@ -367,6 +474,10 @@ timePlot(merged.data,pollutant = c('Temperature.103',
          avg.time = avgtime,
          group = TRUE,
          xlab = 'Local Time')
+timePlot(merged.data.1hr,pollutant = c('Temperature.2m','Temperature.max','Temperature.min'),
+         avg.time = avgtime,
+         group = TRUE,
+         xlab = 'Local Time')
 
 timePlot(merged.data,pollutant = c('RH.103',
                                    'RH.105',
@@ -381,6 +492,12 @@ timePlot(merged.data,pollutant = c('RH.103',
          avg.time = avgtime,
          group = TRUE,
          xlab = 'Local Time')
+timePlot(merged.data.1hr,pollutant = c('RH.max',
+                                   'RH.min'),
+         avg.time = avgtime,
+         group = TRUE,
+         xlab = 'Local Time')
+
 
 timePlot(merged.data,pollutant = c('PM1.103',
                                    'PM1.105',
@@ -392,6 +509,11 @@ timePlot(merged.data,pollutant = c('PM1.103',
                                    'PM1.113',
                                    'PM1.114',
                                    'PM1.115'),
+         avg.time = avgtime,
+         group = TRUE,
+         xlab = 'Local Time')
+timePlot(merged.data.1hr,pollutant = c('PM1.max',
+                                   'PM1.min'),
          avg.time = avgtime,
          group = TRUE,
          xlab = 'Local Time')
@@ -410,6 +532,10 @@ timePlot(merged.data,pollutant = c('PM2.5.103',
          avg.time = avgtime,
          group = TRUE,
          xlab = 'Local Time')
+timePlot(merged.data.1hr,pollutant = c('PM2.5.FDMS','PM2.5.max','PM2.5.min'),
+         avg.time = avgtime,
+         group = TRUE,
+         xlab = 'Local Time')
 
 timePlot(merged.data,pollutant = c('PM10.103',
                                    'PM10.105',
@@ -425,6 +551,11 @@ timePlot(merged.data,pollutant = c('PM10.103',
          avg.time = avgtime,
          group = TRUE,
          xlab = 'Local Time')
+timePlot(merged.data.1hr,pollutant = c('PM10.FDMS','PM10.max','PM10.min'),
+         avg.time = avgtime,
+         group = TRUE,
+         xlab = 'Local Time')
+
 
 #' # Scatter plots against PM2.5 FDMS 1 hour averages
 #+ fig.width=16, fig.height=16
@@ -438,4 +569,4 @@ scatterPlot(merged.data.1hr,x='PM2.5.113',y='PM2.5.FDMS',linear = TRUE)
 scatterPlot(merged.data.1hr,x='PM2.5.114',y='PM2.5.FDMS',linear = TRUE)
 scatterPlot(merged.data.1hr,x='PM2.5.115',y='PM2.5.FDMS',linear = TRUE)
 
-
+options(warn = oldw)

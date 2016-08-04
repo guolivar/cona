@@ -3,5 +3,5 @@ account: rpubs
 server: rpubs.com
 appId: https://api.rpubs.com/api/v1/document/198525/e4d645485ddc462abaff38f80fc8ef7d
 bundleId: https://api.rpubs.com/api/v1/document/198525/e4d645485ddc462abaff38f80fc8ef7d
-url: http://rpubs.com/publish/claim/198525/bb6bf8b5384a437da48eeee8432b04c2
-when: 1469533067.03631
+url: http://rpubs.com/guolivar/198525
+when: 1469756516.7785
