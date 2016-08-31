@@ -1,3 +1,3 @@
-Name  Units
+Name	Units
 Temperature	C
 DateTime	D/MM/YY HH:MM:SS AM/PM

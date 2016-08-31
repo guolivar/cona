@@ -1,0 +1,10 @@
+Name	Units
+Date	DD/MM/YYYY
+Time	HH:MM:SS
+ws	m/s
+wd	degN
+Temperature	C
+RH	%
+Rain	mm
+Pressure	hPa
+Srad	w/m2

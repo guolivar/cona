@@ -1,0 +1,11 @@
+Name	Units
+Day	YYYY/MM/DD
+Time	HH:MM:SS
+Distance	mV
+TmpOUT	C
+TmpIN	C
+PM	mV
+CO2	mV
+CO	mV
+Movement	-
+COstatus	-

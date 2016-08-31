@@ -1,0 +1,14 @@
+Name	Units
+Day	YYYY/MM/DD
+Time	HH:MM:SS
+PM1	mcg/m3
+PM2.5	mcg/m3
+PM10	mcg/m3
+xPM1	mcg/m3
+XPM2.5	mcg/m3
+xPM10	mcg/m3
+Data7	-
+Data8	-
+Data9	-
+Temperature	C
+RH	%
