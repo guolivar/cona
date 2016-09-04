@@ -1,0 +1,7 @@
+Name	Units
+Date	DD/MM/YYYY
+Time	HH:MM:SS
+CO2	ppm
+Temperature	C
+RH	%
+Pressure	hPa

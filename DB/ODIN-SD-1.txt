@@ -1,0 +1,14 @@
+Name	Units
+Day	YYYY/MM/DD
+Time	HH:MM:SS
+Temperature	C
+Humidity	%
+PM1	mcg/m3
+PM2.5	mcg/m3
+PM10	mcg/m3
+N300	pt/cc
+N500	pt/cc
+N1000	pt/cc
+N2500	pt/cc
+N5000	pt/cc
+N10000	pt/cc
