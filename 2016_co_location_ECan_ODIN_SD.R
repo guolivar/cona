@@ -8,7 +8,7 @@ options(warn = -1)
 # ECan data ####
 base_dir <- '//home/gustavo/data/CONA/2016/ODIN/ecan_site/'
 ecan_data_raw <- read.csv(paste0(base_dir,"ecan_data.csv"),stringsAsFactors=FALSE)
-ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='GMT-12')
+ecan_data_raw$date<-as.POSIXct(ecan_data_raw$DateTime,format = "%d/%m/%Y %I:%M:%S %p",tz='Etc/GMT-12')
 ecan_data<-as.data.frame(ecan_data_raw[,c('date','PM2.5..ug.m3.','PM10..ug.m3.','Temperature.2m..DegC.','Temperature.6m..DegC.','Wind.speed..m.s.','Wind.direction..Deg.')])
 names(ecan_data)<- c('date','PM2.5.FDMS','PM10.FDMS','Temperature.2m','Temperature.6m','ws','wd')
 
@@ -18,7 +18,7 @@ base_dir <- '/home/gustavo/data/CONA/2016/ODIN/ecan_site/'
 # ODIN-SD-102 data ####
 odin_id <- '102'
 odin.sd.102.data <- read.delim(paste0(base_dir,"odin_sd_102.txt"))
-odin.sd.102.data$date <- as.POSIXct(paste(odin.sd.102.data$Day,odin.sd.102.data$Time),tz='Pacific/Auckland')
+odin.sd.102.data$date <- as.POSIXct(paste(odin.sd.102.data$Day,odin.sd.102.data$Time),tz='Etc/GMT+12')
 odin.sd.102.data$Day<-NULL
 odin.sd.102.data$Time<-NULL
 
@@ -47,7 +47,7 @@ names(odin.sd.102.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-103 data ####
 odin_id <- '103'
 odin.sd.103.data <- read.delim(paste0(base_dir,"odin_sd_103.txt"))
-odin.sd.103.data$date <- as.POSIXct(paste(odin.sd.103.data$Day,odin.sd.103.data$Time),tz='Pacific/Auckland')
+odin.sd.103.data$date <- as.POSIXct(paste(odin.sd.103.data$Day,odin.sd.103.data$Time),tz='Etc/GMT+12')
 odin.sd.103.data$Day<-NULL
 odin.sd.103.data$Time<-NULL
 
@@ -76,7 +76,7 @@ names(odin.sd.103.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-105 data ####
 odin_id <- '105'
 odin.sd.105.data <- read.delim(paste0(base_dir,"odin_sd_105.txt"))
-odin.sd.105.data$date <- as.POSIXct(paste(odin.sd.105.data$Day,odin.sd.105.data$Time),tz='Pacific/Auckland')
+odin.sd.105.data$date <- as.POSIXct(paste(odin.sd.105.data$Day,odin.sd.105.data$Time),tz='Etc/GMT+12')
 odin.sd.105.data$Day<-NULL
 odin.sd.105.data$Time<-NULL
 
@@ -106,7 +106,7 @@ names(odin.sd.105.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-106 data ####
 odin_id <- '106'
 odin.sd.106.data <- read.delim(paste0(base_dir,"odin_sd_106.txt"))
-odin.sd.106.data$date <- as.POSIXct(paste(odin.sd.106.data$Day,odin.sd.106.data$Time),tz='Pacific/Auckland')
+odin.sd.106.data$date <- as.POSIXct(paste(odin.sd.106.data$Day,odin.sd.106.data$Time),tz='Etc/GMT+12')
 odin.sd.106.data$Day<-NULL
 odin.sd.106.data$Time<-NULL
 
@@ -135,7 +135,7 @@ names(odin.sd.106.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-107 data ####
 odin_id <- '107'
 odin.sd.107.data <- read.delim(paste0(base_dir,"odin_sd_107.txt"))
-odin.sd.107.data$date <- as.POSIXct(paste(odin.sd.107.data$Day,odin.sd.107.data$Time),tz='Pacific/Auckland')
+odin.sd.107.data$date <- as.POSIXct(paste(odin.sd.107.data$Day,odin.sd.107.data$Time),tz='Etc/GMT+12')
 odin.sd.107.data$Day<-NULL
 odin.sd.107.data$Time<-NULL
 
@@ -164,7 +164,7 @@ names(odin.sd.107.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-108 data ####
 odin_id <- '108'
 odin.sd.108.data <- read.delim(paste0(base_dir,"odin_sd_108.txt"))
-odin.sd.108.data$date <- as.POSIXct(paste(odin.sd.108.data$Day,odin.sd.108.data$Time),tz='Pacific/Auckland')
+odin.sd.108.data$date <- as.POSIXct(paste(odin.sd.108.data$Day,odin.sd.108.data$Time),tz='Etc/GMT+12')
 odin.sd.108.data$Day<-NULL
 odin.sd.108.data$Time<-NULL
 
@@ -193,7 +193,7 @@ names(odin.sd.108.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-109 data ####
 odin_id <- '109'
 odin.sd.109.data <- read.delim(paste0(base_dir,"odin_sd_109.txt"))
-odin.sd.109.data$date <- as.POSIXct(paste(odin.sd.109.data$Day,odin.sd.109.data$Time),tz='Pacific/Auckland')
+odin.sd.109.data$date <- as.POSIXct(paste(odin.sd.109.data$Day,odin.sd.109.data$Time),tz='Etc/GMT+12')
 odin.sd.109.data$Day<-NULL
 odin.sd.109.data$Time<-NULL
 
@@ -222,7 +222,7 @@ names(odin.sd.109.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-111 data ####
 odin_id <- '111'
 odin.sd.111.data <- read.delim(paste0(base_dir,"odin_sd_111.txt"))
-odin.sd.111.data$date <- as.POSIXct(paste(odin.sd.111.data$Day,odin.sd.111.data$Time),tz='Pacific/Auckland')
+odin.sd.111.data$date <- as.POSIXct(paste(odin.sd.111.data$Day,odin.sd.111.data$Time),tz='Etc/GMT+12')
 odin.sd.111.data$Day<-NULL
 odin.sd.111.data$Time<-NULL
 
@@ -251,7 +251,7 @@ names(odin.sd.111.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-113 data ####
 odin_id <- '113'
 odin.sd.113.data <- read.delim(paste0(base_dir,"odin_sd_113.txt"))
-odin.sd.113.data$date <- as.POSIXct(paste(odin.sd.113.data$Day,odin.sd.113.data$Time),tz='Pacific/Auckland')
+odin.sd.113.data$date <- as.POSIXct(paste(odin.sd.113.data$Day,odin.sd.113.data$Time),tz='Etc/GMT+12')
 odin.sd.113.data$Day<-NULL
 odin.sd.113.data$Time<-NULL
 
@@ -280,7 +280,7 @@ names(odin.sd.113.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-114 data ####
 odin_id <- '114'
 odin.sd.114.data <- read.delim(paste0(base_dir,"odin_sd_114.txt"))
-odin.sd.114.data$date <- as.POSIXct(paste(odin.sd.114.data$Day,odin.sd.114.data$Time),tz='Pacific/Auckland')
+odin.sd.114.data$date <- as.POSIXct(paste(odin.sd.114.data$Day,odin.sd.114.data$Time),tz='Etc/GMT+12')
 odin.sd.114.data$Day<-NULL
 odin.sd.114.data$Time<-NULL
 
@@ -309,7 +309,7 @@ names(odin.sd.114.data) <- c(paste0('FrameLength.',odin_id),
 # ODIN-SD-115 data ####
 odin_id <- '115'
 odin.sd.115.data <- read.delim(paste0(base_dir,"odin_sd_115.txt"))
-odin.sd.115.data$date <- as.POSIXct(paste(odin.sd.115.data$Day,odin.sd.115.data$Time),tz='Pacific/Auckland')
+odin.sd.115.data$date <- as.POSIXct(paste(odin.sd.115.data$Day,odin.sd.115.data$Time),tz='Etc/GMT+12')
 odin.sd.115.data$Day<-NULL
 odin.sd.115.data$Time<-NULL
 
