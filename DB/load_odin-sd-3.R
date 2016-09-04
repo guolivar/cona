@@ -16,15 +16,18 @@ con<-dbConnect(p,
                port=5432)
 ## Find the files to process ####
 filepath <- '/home/gustavo/data_gustavo/cona'
-files <- list.files(filepath,pattern = '*.txt')
+files <- list.files(filepath,pattern = 'ODIN*')
+time_corrections <- read.delim(paste0(filepath,'/time_corrections.txt'))
 serialn <- substr(files,1,8)
+time_corrections
 for (file in files){
   # Extract the serial number from the filenames
   ##### Read the raw odin file ####
   odin_sn <- substr(file,1,8)
+  time_id <- max(1,which(time_corrections$serialn == odin_sn))
   odin_data <- read.delim(paste0(filepath,'/',file))
   odin_data$date <- as.POSIXct(paste(odin_data$Day,odin_data$Time),tz='Etc/GMT+12')
-  Real_time <- "2016-07-12 09:32:00"
+  Real_time <- time_corrections$real_time[time_id]
   tdiff = (as.POSIXct(Real_time,format = "%Y-%m-%d %H:%M:%S") - odin_data$date[1])
   odin_data$date <- odin_data$date + tdiff
   odin_data$FrameLength <- NULL
