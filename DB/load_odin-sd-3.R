@@ -53,7 +53,7 @@ for (file in files){
                                   VALUES(DEFAULT,",
                                   siteid,",'",
                                   odin_data$date[i],"+12',",
-                                  sensorid[1],",'",
+                                  sensorid[j],",'",
                                   as.character(odin_data[i,j]),"',",dataflag,");"))
     }
   }
