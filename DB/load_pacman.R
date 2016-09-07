@@ -1,4 +1,4 @@
-## Load ODIN-SD-3 data
+## Load PACMANv5 data
 ##### Load relevant packages #####
 library("RPostgreSQL")
 
@@ -17,11 +17,10 @@ con<-dbConnect(p,
 ## Find the files to process ####
 filepath <- '/home/gustavo/data_gustavo/cona/pacman'
 files <- list.files(filepath,pattern = 'PACMAN*')
-serialn <- substr(files,1,9)
 for (file in files){
   # Extract the serial number from the filenames
   ##### Read the raw odin file ####
-  print(pacman_sn <- substr(files[1],1,9))
+  print(pacman_sn <- substr(file,1,9))
   pacman_data <- read.delim(paste0(filepath,'/',file))
   pacman_data$date<-ISOdatetime(year=pacman_data$Year,
                                 month=pacman_data$Month,
@@ -29,7 +28,7 @@ for (file in files){
                                 hour=pacman_data$Hour,
                                 min=pacman_data$Minute,
                                 sec=pacman_data$Second,
-                                tz="NZST")
+                                tz='Etc/GMT-12')
   pacman_data$Count <- NULL
   pacman_data$Year <- NULL
   pacman_data$Month <- NULL
@@ -66,11 +65,12 @@ for (file in files){
     for (i in ((1+(s-1)*step):((s*step)))){
       for (j in (1:length(sensorid))){
         writeLines(paste0(siteid,"\t'",
-                          pacman_data$date[i]," NZST'\t",
+                          strftime(pacman_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
                           sensorid[j],"\t'",
                           as.character(pacman_data[i,j]),"'\t",dataflag),psqlscript)
       }
     }
+    close(psqlscript)
   }
   s<-nblocks
   psqlscript <- file(paste0(pacman_sn,"_",s,".csv"),open = "wt")
@@ -78,11 +78,12 @@ for (file in files){
   for (i in ((1+(s-1)*step):((s*step)))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
-                        pacman_data$date[i]," NZST'\t",
+                        strftime(pacman_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
                         sensorid[j],"\t'",
                         as.character(pacman_data[i,j]),"'\t",dataflag),psqlscript)
     }
   }
+  close(psqlscript)
 }
 dbDisconnect(con)
 
