@@ -60,8 +60,7 @@ for (file in files){
   step <- floor(length(pacman_data[,1])/nblocks)
   for (s in (1:(nblocks-1))){
     print(s)
-    psqlscript <- file(paste0(pacman_sn,"_",s,".csv"),open = "wt")
-    writeLines("houseid\trecordtime\tsensorid\tvalue\tflagid",psqlscript)
+    psqlscript <- file(paste0("./sql/",pacman_sn,"_",s,".csv"),open = "wt")
     for (i in ((1+(s-1)*step):((s*step)))){
       for (j in (1:length(sensorid))){
         writeLines(paste0(siteid,"\t'",
@@ -73,8 +72,7 @@ for (file in files){
     close(psqlscript)
   }
   s<-nblocks
-  psqlscript <- file(paste0(pacman_sn,"_",s,".csv"),open = "wt")
-  writeLines("houseid\trecordtime\tsensorid\tvalue\tflagid",psqlscript)
+  psqlscript <- file(paste0("./sql/",pacman_sn,"_",s,".csv"),open = "wt")
   for (i in ((1+(s-1)*step):((s*step)))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",

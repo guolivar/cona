@@ -45,18 +45,17 @@ for (file in files){
   }
   # Get dataflag
   dataflag <- as.numeric(dbGetQuery(con,"SELECT id FROM admin.dataflags WHERE definition = 'RAW';"))
-  # Push data to the DB ####
-  
+  # Write the insert queriesPush data to the DB ####
+  psqlscript <- file(paste0("./sql/",file),open = "wt")
   for (i in (1:length(odin_data[,1]))){
     for (j in (1:length(sensorid))){
-      ok <- dbGetQuery(con,paste0("INSERT INTO data.fixed_data(id,siteid,recordtime,sensorid,value,flagid)
-                                  VALUES(DEFAULT,",
-                                  siteid,",'",
-                                  odin_data$date[i],"+12',",
-                                  sensorid[j],",'",
-                                  as.character(odin_data[i,j]),"',",dataflag,");"))
+      writeLines(paste0(siteid,"\t'",
+                        strftime(odin_data$date[1],format = '%Y-%m-%d %H:%M:%S', usetz = TRUE),"'\t",
+                        sensorid[j],"\t'",
+                        as.character(odin_data[i,j]),"'\t",dataflag),psqlscript)
     }
   }
+  close(psqlscript)
 }
 dbDisconnect(con)
 
