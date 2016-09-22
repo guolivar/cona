@@ -20,14 +20,15 @@ files <- list.files(filepath,pattern = 'ODIN*')
 time_corrections <- read.delim(paste0(filepath,'/time_corrections.txt'))
 serialn <- substr(files,1,8)
 time_corrections
-# Get last record (date) to upload only newer data
-last_date <- dbGetQuery(con,"SELECT i.serialn, max(fd.recordtime) at time zone 'NZST' as date
-                              FROM data.fixed_data fd, admin.instrument i, admin.sensor s
-                              WHERE
-                              i.id = s.instrumentid AND
-                              fd.sensorid = s.id
-                              group by i.serialn;")
-last_date$date <- as.POSIXct(last_date$date, tz = "GMT")
+# # Get last record (date) to upload only newer data
+# last_date <- dbGetQuery(con,"SELECT i.serialn, max(fd.recordtime) at time zone 'NZST' as date,
+#                               min(fd.recordtime) at time zone 'NZST' as date 
+#                               FROM data.fixed_data fd, admin.instrument i, admin.sensor s
+#                               WHERE
+#                               i.id = s.instrumentid AND
+#                               fd.sensorid = s.id
+#                               group by i.serialn;")
+# last_date$date <- as.POSIXct(last_date$date, tz = "GMT")
 for (file in files){
   # Extract the serial number from the filenames
   ##### Read the raw odin file ####
@@ -53,12 +54,12 @@ for (file in files){
   }
   # Get dataflag
   dataflag <- as.numeric(dbGetQuery(con,"SELECT id FROM admin.dataflags WHERE definition = 'RAW';"))
-  # Write the insert queriesPush data to the DB ####
-  psqlscript <- file(paste0("./sql/",file),open = "wt")
+  # Write the table to copy ####
+  psqlscript <- file(paste0("./",odin_sn,".csv"),open = "wt")
   for (i in (1:length(odin_data[,1]))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
-                        strftime(odin_data$date[1],format = '%Y-%m-%d %H:%M:%S', usetz = TRUE),"'\t",
+                        strftime(odin_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
                         sensorid[j],"\t'",
                         as.character(odin_data[i,j]),"'\t",dataflag),psqlscript)
     }
@@ -66,4 +67,3 @@ for (file in files){
   close(psqlscript)
 }
 dbDisconnect(con)
-

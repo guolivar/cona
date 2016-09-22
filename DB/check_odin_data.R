@@ -9,10 +9,12 @@ access <- read.delim("./.cona_login")
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
                user='cona_data',
-               password='conauser',
-               host='localhost',
+               password='c0nad@ta',
+               host='penap-data.dyndns.org',
                dbname='cona',
                port=5432)
+
+
 ##### Get data ####
 data <- dbGetQuery(con,"SELECT d.recordtime at time zone 'NZST' as date, d.value as pm25, i.serialn as instrument
                    FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
@@ -32,4 +34,3 @@ last_date <- dbGetQuery(con,"SELECT i.serialn, max(fd.recordtime) at time zone '
                         group by i.serialn;")
 
 
-as.numeric(gsub('"', '', filter$spendtime)) 
