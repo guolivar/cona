@@ -55,7 +55,7 @@ for (file in files){
   # Get dataflag
   dataflag <- as.numeric(dbGetQuery(con,"SELECT id FROM admin.dataflags WHERE definition = 'RAW';"))
   # Write the table to copy ####
-  psqlscript <- file(paste0("./",odin_sn,".csv"),open = "wt")
+  psqlscript <- file(paste0(filepath,"/sql/",odin_sn,".csv"),open = "wt")
   for (i in (1:length(odin_data[,1]))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
