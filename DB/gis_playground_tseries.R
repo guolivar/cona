@@ -12,47 +12,21 @@ p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
                user='cona_data',
                password='c0nad@ta',
-               host='localhost',
+               host='penap-data.dyndns.org',
                dbname='cona',
                port=5432)
 
 
 ##### Get data ####
-data <- dbGetQuery(con," SELECT d1.recordtime at time zone 'NZST' as date,
-                   d1.value as pm25, d2.value as rh, d3.value as temp,
-                   d1.instrument as instrument
-                   from (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value, i.serialn as instrument
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
+data <- dbGetQuery(con,"SELECT d.recordtime at time zone 'NZST' as date, d.value as pm25, fs.geom as geom
+                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i, admin.fixedsites as fs
                    WHERE s.id = d.sensorid AND
                    s.instrumentid = i.id AND
+                   fs.id = d.siteid AND
                    i.name = 'ODIN-SD-3' AND
-                   s.name = 'PM2.5') as d1,
-                   (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'RH') as d2,
-                   (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'Temperature') as d3
-                   WHERE
-                   d1.recordtime = d2.recordtime AND
-                   d1.recordtime = d3.recordtime;")
+                   i.serialn = 'ODIN-102' AND
+                   s.name = 'PM2.5'")
 data$pm2.5 <- as.numeric(gsub("'","",data$pm25))
-data$temp <- as.numeric(gsub("'","",data$temp))
-data$rh <- as.numeric(gsub("'","",data$rh))
-
-ggplot(data)+
-  geom_point(aes(x=temp,y=pm2.5, colour = instrument))
-
-ggplot(data)+
-  geom_point(aes(x=rh,y=pm2.5, colour = instrument))
-
-
 wide_data <- dcast(data,date~instrument,value.var = 'pm2.5',fun.aggregate = mean)
 one_hour <- timeAverage(wide_data,avg.time = '1 hour')
 one_day <- timeAverage(wide_data,avg.time = '1 day')
