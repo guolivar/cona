@@ -15,9 +15,9 @@ con<-dbConnect(p,
                dbname='cona',
                port=5432)
 ## Find the files to process ####
-filepath <- '/home/gustavo/data_gustavo/cona'
+filepath <- '/home/gustavo/data_gustavo/cona/pasted'
 files <- list.files(filepath,pattern = 'ODIN*')
-time_corrections <- read.delim(paste0(filepath,'/time_corrections.txt'))
+time_corrections <- read.delim(paste0(filepath,'/../time_corrections.txt'))
 time_corrections$real_time <- as.POSIXct(time_corrections$real_time,tz = 'Etc/GMT-12')
 serialn <- substr(files,1,8)
 time_corrections
@@ -68,7 +68,7 @@ for (file in files){
   # Get dataflag
   dataflag <- as.numeric(dbGetQuery(con,"SELECT id FROM admin.dataflags WHERE definition = 'RAW';"))
   # Write the table to copy ####
-  psqlscript <- file(paste0(filepath,"/sql/",odin_sn,".csv"),open = "wt")
+  psqlscript <- file(paste0(filepath,"/../sql/",odin_sn,".csv"),open = "wt")
   for (i in (1:length(new_odin_data[,1]))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
