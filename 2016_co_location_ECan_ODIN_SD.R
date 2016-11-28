@@ -569,4 +569,26 @@ scatterPlot(merged.data.1hr,x='PM2.5.113',y='PM2.5.FDMS',linear = TRUE)
 scatterPlot(merged.data.1hr,x='PM2.5.114',y='PM2.5.FDMS',linear = TRUE)
 scatterPlot(merged.data.1hr,x='PM2.5.115',y='PM2.5.FDMS',linear = TRUE)
 
+#' # Scatter plots against Temperature and RH as recorded by ODIN-SD
+#+ fig.width=16, fig.height=16
+scatterPlot(merged.data.1hr,x='PM2.5.103',y='RH.103',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.105',y='RH.105',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.107',y='RH.107',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.108',y='RH.108',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.109',y='RH.109',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.111',y='RH.111',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.113',y='RH.113',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.114',y='RH.114',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.115',y='RH.115',linear = TRUE)
+
+scatterPlot(merged.data.1hr,x='PM2.5.103',y='Temperature.103',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.105',y='Temperature.105',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.107',y='Temperature.107',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.108',y='Temperature.108',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.109',y='Temperature.109',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.111',y='Temperature.111',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.113',y='Temperature.113',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.114',y='Temperature.114',linear = TRUE)
+scatterPlot(merged.data.1hr,x='PM2.5.115',y='Temperature.115',linear = TRUE)
+
 options(warn = oldw)
