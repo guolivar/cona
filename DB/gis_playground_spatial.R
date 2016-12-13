@@ -7,6 +7,7 @@ library(automap)
 library(raster)
 library(gstat)
 library(sp)
+library(rgdal)
 ##### Set the working directory DB ####
 setwd("~/repositories/cona/DB")
 ##### Read the credentials file (hidden) ####
@@ -40,11 +41,8 @@ for (hr in (0:23)){
   coordinates(c_data) <- ~ x + y
   eval(parse(text=paste0("surf.",hr," <- ",
                          "autoKrige(pm2.5 ~ 1,data=c_data,input_data=c_data)")))
+  eval(parse(text=paste0("raster.",hr,"<- raster(surf.",hr,"$krige_output,layer=6)")))
   
 }
 
-
-plot(surf.23$krige_output)
-
-
-
+writeOGR(surf.0$krige_output, ".", "randompts", driver = "ESRI Shapefile", overwrite_layer = TRUE)
