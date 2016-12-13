@@ -54,8 +54,8 @@ for (file in files){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
                         strftime(ibuton$date[1],format = '%Y-%m-%d %H:%M:%S', usetz = TRUE),"'\t",
-                        sensorid[j],"\t'",
-                        as.character(ibuton[i,j]),"'\t",dataflag),psqlscript)
+                        sensorid[j],"\t",
+                        as.character(ibuton[i,j]),"\t",dataflag),psqlscript)
     }
   }
   close(psqlscript)

@@ -73,8 +73,8 @@ for (file in files){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
                         strftime(new_odin_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
-                        sensorid[j],"\t'",
-                        as.character(new_odin_data[i,j]),"'\t",dataflag),psqlscript)
+                        sensorid[j],"\t",
+                        as.character(new_odin_data[i,j]),"\t",dataflag),psqlscript)
     }
   }
   close(psqlscript)

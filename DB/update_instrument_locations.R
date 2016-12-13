@@ -17,19 +17,19 @@ con<-dbConnect(p,
 
 
 ##### Read parameters ####
-deployment <- read.delim(paste0(filepath,'/odin_deployment.txt'))
+deployment <- read.delim(paste0(filepath,'/indoor_deployment.txt'))
 nchanges = length(deployment$serialn)
 for (i in (1:nchanges)){
   serialn = as.character(deployment$serialn[i])
   date1 = as.character(deployment$date1[i])
   date2 = as.character(deployment$date2[i])
-  site = deployment$site[i]
+  site = deployment$house[i]
   print(serialn)
   print(date1)
   print(date2)
   print(site)
-  data <- dbGetQuery(con,paste0("UPDATE data.fixed_data
-                              SET siteid = ",
+  data <- dbGetQuery(con,paste0("UPDATE data.indoor_data
+                              SET houseid = ",
                               site,
                               " WHERE id in
                               (select d.id from data.fixed_data as d, admin.sensor as s, admin.instrument as i

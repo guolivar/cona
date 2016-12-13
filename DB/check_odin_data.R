@@ -19,7 +19,7 @@ con<-dbConnect(p,
 
 ##### Get data ####
 data <- dbGetQuery(con," SELECT d1.recordtime at time zone 'NZST' as date,
-                   d1.value as pm25, d2.value as rh, d3.value as temp,
+                   d1.value::numeric as pm25, d2.value::numeric as rh, d3.value::numeric as temp,
                    d1.instrument as instrument
                    from (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value, i.serialn as instrument
                    FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
@@ -42,9 +42,9 @@ data <- dbGetQuery(con," SELECT d1.recordtime at time zone 'NZST' as date,
                    WHERE
                    d1.recordtime = d2.recordtime AND
                    d1.recordtime = d3.recordtime;")
-data$pm2.5 <- as.numeric(gsub("'","",data$pm25))
-data$temp <- as.numeric(gsub("'","",data$temp))
-data$rh <- as.numeric(gsub("'","",data$rh))
+
+data$pm2.5 <- data$pm25
+data$pm25 <- NULL
 
 ggplot(data)+
   geom_point(aes(x=temp,y=pm2.5, colour = instrument))

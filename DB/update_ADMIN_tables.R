@@ -82,4 +82,29 @@ for (i in 1:nrecs){
         as.character(participant$Phone[i]),"','",
         as.character(participant$Address[i]),"');"))
 }
+
+##### Add homes
+
+point_locations <- read.delim('./to_link_mb.txt')
+mb2013id <- 0*(1:nrow(point_locations))
+for (i in (1:nrow(point_locations))){
+  mb2013id[i] <- as.numeric(dbGetQuery(con,paste0("select mb2013
+                                      from external.meshblock
+                                      where ST_Contains(geom, ST_SetSRID(ST_MakePoint(",
+                                    point_locations$Lon[i],",",point_locations$Lat[i],"),4326));")))
+}
+point_locations$mbid <- mb2013id
+
+
+
+
+
+
+
+
+
 dbDisconnect(con)
+
+
+
+
