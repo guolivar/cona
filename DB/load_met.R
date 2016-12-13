@@ -77,8 +77,8 @@ for (i in (1:length(met_data$date))){
   for (j in (1:length(sensorid))){
     writeLines(paste0(siteid,"\t'",
                       strftime(met_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
-                      sensorid[j],"\t'",
-                      as.character(met_data[i,j]),"'\t",dataflag),psqlscript)
+                      sensorid[j],"\t",
+                      as.character(met_data[i,j]),"\t",dataflag),psqlscript)
   }
 }
 close(psqlscript)
@@ -146,8 +146,8 @@ for (i in (1:length(met_data$date))){
   for (j in (1:length(sensorid))){
     writeLines(paste0(siteid,"\t'",
                       strftime(met_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
-                      sensorid[j],"\t'",
-                      as.character(met_data[i,j]),"'\t",dataflag),psqlscript)
+                      sensorid[j],"\t",
+                      as.character(met_data[i,j]),"\t",dataflag),psqlscript)
   }
 }
 close(psqlscript)
@@ -214,8 +214,8 @@ for (i in (1:length(met_data$date))){
   for (j in (1:length(sensorid))){
     writeLines(paste0(siteid,"\t'",
                       strftime(met_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
-                      sensorid[j],"\t'",
-                      as.character(met_data[i,j]),"'\t",dataflag),psqlscript)
+                      sensorid[j],"\t",
+                      as.character(met_data[i,j]),"\t",dataflag),psqlscript)
   }
 }
 close(psqlscript)
@@ -282,8 +282,8 @@ for (i in (1:length(met_data$date))){
   for (j in (1:length(sensorid))){
     writeLines(paste0(siteid,"\t'",
                       strftime(met_data$date[i],format = '%Y-%m-%d %H:%M:%S %Z'),"'\t",
-                      sensorid[j],"\t'",
-                      as.character(met_data[i,j]),"'\t",dataflag),psqlscript)
+                      sensorid[j],"\t",
+                      as.character(met_data[i,j]),"\t",dataflag),psqlscript)
   }
 }
 close(psqlscript)
