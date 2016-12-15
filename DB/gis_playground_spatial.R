@@ -28,23 +28,21 @@ data <- dbGetQuery(con,"SELECT fs.id, avg(d.value::numeric) as pm25,
   ST_X(ST_TRANSFORM(fs.geom::geometry,2193)) as x,
   ST_Y(ST_TRANSFORM(fs.geom::geometry,2193)) as y,
   ST_AsText(fs.geom) as geom,
-  date_trunc('hour', (d.recordtime at time zone 'NZST')::time) as tstmp_hr,
-  date_trunc('day', (d.recordtime at time zone 'NZST')) as tstmp_dy
+  d.recordtime at time zone 'NZST' as tstmp
   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i, admin.fixedsites as fs
   WHERE s.id = d.sensorid AND
 	  s.instrumentid = i.id AND
 	  fs.id = d.siteid AND
   	i.name = 'ODIN-SD-3' AND
   	s.name = 'PM2.5' AND
-    (d.recordtime at time zone 'NZST') >= timestamp '2016-07-31 00:00:00' AND
-    (d.recordtime at time zone 'NZST') <= timestamp '2016-08-02 00:00:00' AND
+    (d.recordtime at time zone 'NZST') >= timestamp '2016-08-09 16:00:00' AND
+    (d.recordtime at time zone 'NZST') <= timestamp '2016-08-10 16:00:00' AND
     ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=27),0.032))
   GROUP BY fs.id,
-    date_trunc('hour', (d.recordtime at time zone 'NZST')::time),
-    date_trunc('day', (d.recordtime at time zone 'NZST'));")
+    d.recordtime;")
 data$pm2.5 <- data$pm25
 data$pm25 <- NULL
-data$date <- as.POSIXct(paste0(data$tstmp_dy," ",data$tstmp_hr), tz='NZST')
+data$date <- as.POSIXct(paste0(data$tstmp_dy," ",data$tstmp), tz='NZST')
 i=0
 for (d_slice in sort(unique(data$date))){
   c_data <- subset(data,subset = (date==d_slice))
@@ -69,4 +67,4 @@ x_bbox[2,] <-c(max(x_coords[,1]),max(x_coords[,2]))
 all_data <- SpatialPointsDataFrame(coords = x_coords, data = x_data, coords.nrs = x_coords.nrs, bbox = x_bbox)
 
 
-writeOGR(all_data, ".", "ep31Jul_pm25_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+writeOGR(all_data, ".", "ep9Aug_pm25_1_min_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
