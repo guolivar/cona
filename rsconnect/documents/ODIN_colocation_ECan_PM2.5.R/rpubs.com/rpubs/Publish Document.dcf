@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/236967/0139ff9caf6b4515a6228355e6ea371e
+bundleId: https://api.rpubs.com/api/v1/document/236967/0139ff9caf6b4515a6228355e6ea371e
+url: http://rpubs.com/guolivar/236967
+when: 1482381047.52771

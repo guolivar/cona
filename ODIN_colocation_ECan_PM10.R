@@ -2,34 +2,35 @@
 set.seed(2001)
 ##### Load relevant packages #####
 library(RPostgreSQL)
-library(ggplot2)
 library(reshape2)
+library(ggplot2)
 library(openair)
 ##### Set the working directory DB ####
 setwd("~/repositories/cona/DB")
 ##### Set the path where location info is #####
-filepath <- '/home/gustavo/data_gustavo/cona'
+filepath <- '~/data/CONA/2016'
 ##### Read the credentials file (hidden file not on the GIT repository) ####
-access <- read.delim("./.cona_login")
+access <- read.delim("./.cona_login", stringsAsFactors = FALSE)
 ##### Open DATA connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
-               user=as.character(access$user[1]),
-               password=as.character(access$pwd[1]),
+               user=access$user[1],
+               password=access$pwd[1],
                host='penap-data.dyndns.org',
                dbname='cona',
                port=5432)
 # Load only data from ODINs at ECan's site
 siteid = 18 # ECan site
-data <- dbGetQuery(con," SELECT d.recordtime as date, d.value as pm10, i.serialn as instrument
+data <- dbGetQuery(con," SELECT d.recordtime at time zone 'NZST' as date,
+                   d.value::numeric as pm25, i.serialn as instrument
                    FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
                    WHERE s.id = d.sensorid AND
                    s.instrumentid = i.id AND
                    i.name = 'ODIN-SD-3' AND
                    d.siteid = 18 AND
                    s.name = 'PM10';")
-data$ODIN.PM10 <- data$pm10
-data$pm10 <- NULL
+data$ODIN.PM10 <- data$pm25
+data$pm25 <- NULL
 wide_data <- dcast(data,date~instrument,value.var = 'ODIN.PM10',fun.aggregate = mean)
 
 # Load ECan's data
@@ -37,9 +38,6 @@ ecan.data <- read.csv(paste0(filepath,'/RangioraWinter2016.csv'))
 ecan.data$date <- as.POSIXct(ecan.data$Date,format = '%d/%m/%Y %H:%M', tz='Etc/GMT-13')
 ecan.data$X <- NULL
 names(ecan.data) <- c('Date','Time','ws','wd','wdsd','wssd','wmx','co','dT','T2m','T6m','PM10.FDMS','PM2.5.FDMS','PMcoarse','date')
-
-
-
 
 # Select time frames
 min_date <- max(min(data$date),min(ecan.data$date))
@@ -49,9 +47,18 @@ max_date <- min(max(data$date),max(ecan.data$date))
 alldata <- subset(merge(wide_data,ecan.data,by='date',all = TRUE),(date >= min_date & date <= max_date))
 wide_data.1hr <- timeAverage(alldata,avg.time = '1 hour')
 timePlot(wide_data.1hr,pollutant = names(wide_data.1hr)[c(2:18,29)],group = TRUE, avg.time = '1 hour')
-fit_coeffs <- data.frame(snumber=NA*(1:17),inter.lwr=NA,inter=NA,inter.upr=NA,slope.lwr=NA,slope=NA,slope.upr=NA)
+fit_coeffs <- data.frame(snumber=NA*(1:17),inter=NA,slope=NA)
+
+# Linear fit for ODIN-109
+summary(lm_109 <- lm(data = wide_data.1hr,PM10.FDMS ~ ODIN.109))
+fit_coeffs$snumber[1]<-'ODIN-109'
+intr109 <- coefficients(lm_109)[1]
+slp109 <- coefficients(lm_109)[2]
+fit_coeffs$inter[1] <- coefficients(lm_109)[1]
+fit_coeffs$slope[1] <- coefficients(lm_109)[2]
+
 # Linear fit for all ODINs
-j=1
+j=2
 for (i in c('100',
             '101',
             '102',
@@ -61,7 +68,6 @@ for (i in c('100',
             '106',
             '107',
             '108',
-            '109',
             '110',
             '111',
             '112',
@@ -70,24 +76,15 @@ for (i in c('100',
             '115',
             '117'))
 {
-  eval(parse(text=paste0('summary(lm_',i,' <- lm(data = wide_data.1hr,PM10.FDMS ~ ODIN.',i,'))')))
-  fit_coeffs$snumber[j]<-paste0('ODIN.',i)
-  eval(parse(text=paste0('fit_coeffs$inter[j] <- coefficients(lm_',i,')[1]')))
-  eval(parse(text=paste0('fit_coeffs$slope[j] <- coefficients(lm_',i,')[2]')))
-  eval(parse(text=paste0('fit_coeffs$inter.lwr[j] <- confint(lm_',i,')[1]')))
-  eval(parse(text=paste0('fit_coeffs$inter.upr[j] <- confint(lm_',i,')[3]')))
-  eval(parse(text=paste0('fit_coeffs$slope.lwr[j] <- confint(lm_',i,')[2]')))
-  eval(parse(text=paste0('fit_coeffs$slope.upr[j] <- confint(lm_',i,')[4]')))
+  eval(parse(text=paste0('summary(lm_',i,' <- lm(data = wide_data.1hr,ODIN.109 ~ ODIN.',i,'))')))
+  fit_coeffs$snumber[j]<-paste0('ODIN-',i)
+  eval(parse(text=paste0('inter <- coefficients(lm_',i,')[1]')))
+  eval(parse(text=paste0('slope <- coefficients(lm_',i,')[2]')))
+  eval(parse(text=paste0('fit_coeffs$inter[j] <- intr109 + slp109*inter')))
+  eval(parse(text=paste0('fit_coeffs$slope[j] <- slope * slp109')))
   j=j+1
 }
 
-ggplot(fit_coeffs)+
-  geom_bar(aes(x=snumber,y=slope.upr,fill=snumber),stat = 'identity') +
-  geom_bar(aes(x=snumber,y=slope.lwr),fill='white',stat = 'identity')
-
-ggplot(fit_coeffs)+
-  geom_bar(aes(x=snumber,y=inter.upr,fill=snumber),stat = 'identity') +
-  geom_bar(aes(x=snumber,y=inter.lwr),alpha=0,stat = 'identity')
 
 # Linear fit of ODIN-109 against FDMS ####
 data.fit109 <- as.data.frame(wide_data.1hr[,c('date','PM10.FDMS','ODIN.109')])
@@ -145,9 +142,22 @@ ggplot(data)+
   xlab('Local Date')+
   ylab(expression(paste('PM10 [',mu,'g/',m^3)))
 
-
-
-
+# Update metadata table with calibration data ####
+sensor_id <- dbGetQuery(con, "SELECT i.serialn, s.id
+                              FROM admin.sensor s,
+                                admin.instrument i
+                              WHERE s.instrumentid = i.id AND
+                                i.name='ODIN-SD-3' AND
+                                s.name = 'PM10';")
+for (i in (1:nrow(sensor_id))){
+  iserial <- sensor_id$serialn[i]
+  sid <- sensor_id$id[i]
+  idx_coeffs <- which(fit_coeffs$snumber==iserial)
+  if (length(idx_coeffs)==1) {
+    st <- dbGetQuery(con,paste0("INSERT INTO metadata.odin_sd_calibration(sensorid, slope, intercept, valid_from)
+VALUES (",sid,",", fit_coeffs$slope[idx_coeffs],",",fit_coeffs$inter[idx_coeffs],",'2015-01-01 00:00:00 NZST');"))
+  }
+}
 
 
 

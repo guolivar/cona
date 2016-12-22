@@ -14,7 +14,7 @@ access <- read.delim("./.cona_login", stringsAsFactors = FALSE)
 ##### Open DATA connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
-               user=access$usr[1],
+               user=access$user[1],
                password=access$pwd[1],
                host='penap-data.dyndns.org',
                dbname='cona',
@@ -153,9 +153,24 @@ ggplot(data)+
   xlab('Local Date')+
   ylab(expression(paste('PM2.5 [',mu,'g/',m^3)))
 
+# Update metadata table with calibration data ####
+sensor_id <- dbGetQuery(con, "SELECT i.serialn, s.id
+                              FROM admin.sensor s,
+                                admin.instrument i
+                              WHERE s.instrumentid = i.id AND
+                                i.name='ODIN-SD-3' AND
+                                s.name = 'PM2.5';")
+for (i in (1:nrow(sensor_id))){
+  iserial <- sensor_id$serialn[i]
+  sid <- sensor_id$id[i]
+  idx_coeffs <- which(fit_coeffs$snumber==iserial)
+  if (length(idx_coeffs)==1) {
+    st <- dbGetQuery(con,paste0("UPDATE metadata.odin_sd_calibration
+                                 SET slope=",fit_coeffs$slope[idx_coeffs],", intercept=",fit_coeffs$inter[idx_coeffs],
+                                " WHERE sensorid = ",sid,";"))
 
-
-
+  }
+}
 
 
 
