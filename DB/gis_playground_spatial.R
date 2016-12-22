@@ -28,7 +28,7 @@ data <- dbGetQuery(con,"SELECT fs.id, avg(d.value::numeric) as pm25,
   ST_X(ST_TRANSFORM(fs.geom::geometry,2193)) as x,
   ST_Y(ST_TRANSFORM(fs.geom::geometry,2193)) as y,
   ST_AsText(fs.geom) as geom,
-  d.recordtime at time zone 'NZST' as tstmp
+  date_trunc('hour',d.recordtime at time zone 'NZST') as tstmp
   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i, admin.fixedsites as fs
   WHERE s.id = d.sensorid AND
 	  s.instrumentid = i.id AND
@@ -37,9 +37,10 @@ data <- dbGetQuery(con,"SELECT fs.id, avg(d.value::numeric) as pm25,
   	s.name = 'PM2.5' AND
     (d.recordtime at time zone 'NZST') >= timestamp '2016-08-09 16:00:00' AND
     (d.recordtime at time zone 'NZST') <= timestamp '2016-08-10 16:00:00' AND
-    ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=27),0.032))
+    ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=27),0.032)) AND
+count(fs.geom) > 4
   GROUP BY fs.id,
-    d.recordtime;")
+    date_trunc('hour',d.recordtime at time zone 'NZST');")
 data$pm2.5 <- data$pm25
 data$pm25 <- NULL
 data$date <- as.POSIXct(paste0(data$tstmp_dy," ",data$tstmp), tz='NZST')
