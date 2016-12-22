@@ -2,3 +2,7 @@
 .participants.txt
 *.Rout
 sql
+*.RData
+*.shp
+*.dbf
+*.shx
