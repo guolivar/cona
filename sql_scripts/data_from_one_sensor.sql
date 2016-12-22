@@ -31,6 +31,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'PM2.5') AS d1,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -41,6 +42,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'PM10') AS d2,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -51,6 +53,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'Temperature') AS d3,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -61,6 +64,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'RH') AS d4
 WHERE d1.recordtime = d2.recordtime
     AND d2.recordtime = d3.recordtime

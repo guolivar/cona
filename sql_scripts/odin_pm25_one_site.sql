@@ -11,4 +11,5 @@ WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.name = 'ODIN-SD-3'
     AND d.siteid = 18
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND s.name = 'PM2.5';

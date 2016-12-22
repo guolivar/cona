@@ -11,6 +11,7 @@ WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.name = 'ODIN-SD-3'
     AND d.siteid = 18
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND s.name = 'PM2.5';
 
  -- Select all PM data from all units while they were at ECan's site (siteid 18) LONG format
@@ -26,6 +27,7 @@ WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.name = 'ODIN-SD-3'
     AND d.siteid = 18
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND (s.name = 'PM2.5'
          OR s.name = 'PM10'
          OR s.name = 'PM1')
@@ -44,6 +46,7 @@ FROM data.fixed_data AS d,
 WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.serialn = 'ODIN-109'
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND (s.name = 'PM2.5'
          OR s.name = 'PM10'
          OR s.name = 'Temperature'
@@ -65,6 +68,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'PM2.5') AS d1,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -75,6 +79,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'PM10') AS d2,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -85,6 +90,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'Temperature') AS d3,
 
     (SELECT d.recordtime AT TIME ZONE 'UTC' AS recordtime,
@@ -95,6 +101,7 @@ FROM
      WHERE s.id = d.sensorid
          AND s.instrumentid = i.id
          AND i.serialn = 'ODIN-109'
+         AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
          AND s.name = 'RH') AS d4
 WHERE d1.recordtime = d2.recordtime
     AND d2.recordtime = d3.recordtime
@@ -113,7 +120,7 @@ FROM data.fixed_data AS d,
 WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.name = 'ODIN-SD-3'
-    AND d.siteid = fd.id
+    AND d.siteid = fs.id
 GROUP BY siteid,
          name;
 
@@ -130,6 +137,7 @@ FROM data.fixed_data AS d,
 WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND i.name = 'ODIN-SD-3'
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND d.siteid = fs.id
     AND s.name = 'PM2.5'
 ORDER BY date;
@@ -148,6 +156,7 @@ WHERE s.id = d.sensorid
     AND s.instrumentid = i.id
     AND fs.id = d.siteid
     AND i.name = 'ODIN-SD-3'
+    AND d.flagid= 1 -- 1=RAW, 2=PROCESSED, 3=FINAL
     AND s.name = 'PM2.5'
     AND fs.id != 27
     AND d.recordtime < timestamptz '2016-08-10 00:00 NZST'
