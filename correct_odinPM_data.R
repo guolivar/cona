@@ -27,7 +27,7 @@ for (i in (1:nrow(fit_coeffs))){
   slope <-fit_coeffs$slope[i]
   inter <- fit_coeffs$intercept[i]
   st <- dbGetQuery(con,paste0("UPDATE data.fixed_data
-                              SET flagid=3, value = value*",slope," + ",inter,
-                              " WHERE sensorid=",sensorid,";"))
+                              SET flagid=3, value = (value::numeric*",slope," + ",inter,
+                              ")::text WHERE sensorid=",sensorid,";"))
 }
 dbDisconnect(con)
