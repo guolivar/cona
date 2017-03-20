@@ -12,7 +12,7 @@ p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
                user=access$usr[2],
                password=access$pwd[2],
-               host='penap-data.dyndns.org',
+               host='54.206.251.211',
                dbname='cona',
                port=5432)
 

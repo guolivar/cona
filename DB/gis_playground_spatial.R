@@ -17,7 +17,7 @@ p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
                user=access$usr[2],
                password=access$pwd[2],
-               host='penap-data.dyndns.org',
+               host='54.206.251.211',
                dbname='cona',
                port=5432)
 
@@ -37,10 +37,11 @@ data <- dbGetQuery(con,"SELECT fs.id, avg(d.value::numeric) as pm25,
   	s.name = 'PM2.5' AND
     (d.recordtime at time zone 'NZST') >= timestamp '2016-08-09 16:00:00' AND
     (d.recordtime at time zone 'NZST') <= timestamp '2016-08-10 16:00:00' AND
-    ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=27),0.032)) AND
-count(fs.geom) > 4
+    ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=27),0.032))
   GROUP BY fs.id,
-    date_trunc('hour',d.recordtime at time zone 'NZST');")
+    date_trunc('hour',d.recordtime at time zone 'NZST')
+  HAVING
+    count(fs.geom) > 4;")
 data$pm2.5 <- data$pm25
 data$pm25 <- NULL
 data$date <- as.POSIXct(paste0(data$tstmp_dy," ",data$tstmp), tz='NZST')
