@@ -18,30 +18,18 @@ con<-dbConnect(p,
 
 
 ##### Get data ####
-data <- dbGetQuery(con," SELECT d1.recordtime at time zone 'NZST' as date,
-                   d1.value::numeric as pm25, d2.value::numeric as rh, d3.value::numeric as temp,
-                   d1.instrument as instrument
-                   from (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value, i.serialn as instrument
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'PM2.5') as d1,
-                   (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'RH') as d2,
-                   (SELECT d.recordtime at time zone 'NZST' as recordtime, d.value as value
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'Temperature') as d3
-                   WHERE
-                   d1.recordtime = d2.recordtime AND
-                   d1.recordtime = d3.recordtime;")
+data <- dbGetQuery(con," SELECT d.recordtime AT TIME ZONE 'UTC' AS date,
+                                 i.serialn AS instrument,
+                                 s.name AS sensor,
+                                 d.value AS value,
+                                 d.siteid as siteid
+FROM data.fixed_data AS d,
+     admin.sensor AS s,
+     admin.instrument AS i
+WHERE s.id = d.sensorid
+    AND s.instrumentid = i.id
+    AND (s.name = 'PM2.5')
+ORDER BY date, siteid;")
 
 data$pm2.5 <- data$pm25
 data$pm25 <- NULL
