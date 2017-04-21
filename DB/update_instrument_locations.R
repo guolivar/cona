@@ -32,7 +32,7 @@ for (i in (1:nchanges)){
                               SET houseid = ",
                               site,
                               " WHERE id in
-                              (select d.id from data.fixed_data as d, admin.sensor as s, admin.instrument as i
+                              (select d.id from data.indoor_data as d, admin.sensor as s, admin.instrument as i
                               where
                               	d.recordtime > '",
                                 date1,
