@@ -1,9 +1,9 @@
-## Load ODIN-SD-3 data
+## Load iButton data
 ##### Load relevant packages #####
 library("RPostgreSQL")
 
 ##### Set the working directory DB ####
-setwd("~/repositories/cona/DB")
+#setwd("~/repositories/cona/DB")
 ##### Read the credentials file (hidden) ####
 access <- read.delim("./.cona_login")
 ##### Open the connection to the DB ####
@@ -44,16 +44,16 @@ for (file in files){
   for (i in (1:length(sensornames))){
     sensorid[i] <- as.numeric(dbGetQuery(con,paste0("SELECT id FROM admin.sensor
                                                     WHERE instrumentid = ",instrumentid,
-                                                    " AND name = '",sensornames[i],"';")))
+                                                    " AND name = '",sensornames[i],"' order by id limit 1;")))
   }
   # Get dataflag
   dataflag <- as.numeric(dbGetQuery(con,"SELECT id FROM admin.dataflags WHERE definition = 'RAW';"))
   # Write the insert queriesPush data to the DB ####
-  psqlscript <- file(paste0("./sql/",file),open = "wt")
+  psqlscript <- file(paste0(filepath,"/sql/",file),open = "wt")
   for (i in (1:length(ibuton[,1]))){
     for (j in (1:length(sensorid))){
       writeLines(paste0(siteid,"\t'",
-                        strftime(ibuton$date[1],format = '%Y-%m-%d %H:%M:%S', usetz = TRUE),"'\t",
+                        strftime(ibuton$date[i],format = '%Y-%m-%d %H:%M:%S', usetz = TRUE),"'\t",
                         sensorid[j],"\t",
                         as.character(ibuton[i,j]),"\t",dataflag),psqlscript)
     }
