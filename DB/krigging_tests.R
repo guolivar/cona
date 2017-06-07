@@ -25,7 +25,8 @@ con<-dbConnect(p,
 
 ##### Get data ####
 for (hour in (0:23)){
-  c_data <- dbGetQuery(con,paste0("SELECT fs.id, avg(d.value::numeric) as pm25,
+  c_data <- dbGetQuery(con,paste0("SELECT fs.id,
+  percentile_disc(0.05) WITHIN GROUP (ORDER BY d.value::numeric) as pm25,
   ST_X(ST_TRANSFORM(fs.geom::geometry,2193)) as x,
   ST_Y(ST_TRANSFORM(fs.geom::geometry,2193)) as y,
   ST_AsText(fs.geom) as geom
@@ -69,6 +70,10 @@ all_data <- spTransform(all_data,CRS("+proj=longlat +datum=WGS84"))
 
 writeOGR(all_data, ".", "all_data_1hr_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
 
+min_pm <- min(all_data$var1.pred)
+max_pm <- max(all_data$var1.pred)
+min_var <- min(all_data$var1.var)
+max_var <- max(all_data$var1.var)
 
 for (hour in (0:23)){
   map <- get_map(location = rowMeans(bbox(all_data)),zoom = 14)
@@ -78,8 +83,8 @@ for (hour in (0:23)){
                size=2.2,
                shape=22,
                alpha=0.8) +
-    scale_fill_gradientn(name = 'PM2.5', limits = c(0,21), colours = rev(heat.colors(5))) +
-    scale_color_gradientn(name = 'PM2.5', limits = c(0,21), colours = rev(heat.colors(5))) +
+    scale_fill_gradientn(name = 'PM2.5', limits = c(min_pm,max_pm), colours = rev(heat.colors(5))) +
+    scale_color_gradientn(name = 'PM2.5', limits = c(min_pm,max_pm), colours = rev(heat.colors(5))) +
     ggtitle(paste0(hour,':00'))
   ggsave(paste0('./',sprintf('%02d',hour),'_pm25.png'))
   
@@ -90,12 +95,13 @@ for (hour in (0:23)){
                size=2.2,
                shape=22,
                alpha=0.8) +
-    scale_fill_gradientn(name = 'Variance', limits = c(0,45), colours = rev(heat.colors(5))) +
-    scale_color_gradientn(name = 'Variance', limits = c(0,45), colours = rev(heat.colors(5))) +
+    scale_fill_gradientn(name = 'Variance', limits = c(min_var,max_var), colours = rev(heat.colors(5))) +
+    scale_color_gradientn(name = 'Variance', limits = c(min_var,max_var), colours = rev(heat.colors(5))) +
     ggtitle(paste0(hour,':00'))
   ggsave(paste0('./',sprintf('%02d',hour),'_pm25_var.png'))
 }
+system('ffmpeg -y -framerate 2 -i %02d_pm25.png pm25.mp4')
+system('ffmpeg -y -framerate 2 -i %02d_pm25_var.png pm25_var.mp4')
 
-  
 dbDisconnect(con)
 
