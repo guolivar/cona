@@ -64,6 +64,17 @@ for (d_slice in sort(unique(data$tstmp))){
     eval(parse(text=paste0("x_data <- rbind(x_data,surf.",i,"$krige_output@data)")))
     eval(parse(text=paste0("x_coords <- rbind(x_coords,surf.",i,"$krige_output@coords)")))
   }
+  eval(parse(text=parse0("c_surf <- surf.",i)))
+  map <- get_map(location = rowMeans(bbox(c_surf)),zoom = 14)
+  ggmap(map) +
+    geom_point(data=as.data.frame(c_surf),
+               aes(x1,x2,fill=var1.pred,color=var1.pred),
+               size=2.5,
+               shape=22,
+               alpha=0.4) +
+    ggtitle(label = d_slice)
+    scale_fill_gradientn(colours = rev(heat.colors(5))) +
+    scale_color_gradientn(colours = rev(heat.colors(5)))
   i=i+1
 }
 x_bbox[1,] <-c(min(x_coords[,1]),min(x_coords[,2]))
