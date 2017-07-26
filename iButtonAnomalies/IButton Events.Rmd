@@ -23,14 +23,16 @@ data_path <- "~/data/CONA/2016/iButton/"
 
 For this test we use data from subject Nr 3 who received 2 iButtons (SN1: A500000032322841; SN2: B00000026F94E41).
 
+
+
 ```{r load_data_ibuttons}
-ibutton.1 <- read_csv("~/data/CONA/2016/iButton/A500000032322841.csv",
+ibutton.1 <- read_csv("~/data/CONA/2016/iButton/A0000002F194D41.csv",
                       col_types = cols(Unit = col_skip()),
                       skip = 19)
 ibutton.1$date <- as.POSIXct(ibutton.1$`Date/Time`, tz='NZST', format = '%d/%m/%y %I:%M:%S %p')
 ibutton.1$`Date/Time`<- NULL
 names(ibutton.1) <- c('T.1','date')
-ibutton.2 <- read_csv("~/data/CONA/2016/iButton/B00000026F9E41.csv",
+ibutton.2 <- read_csv("~/data/CONA/2016/iButton/170000004AE5E141.csv",
                       col_types = cols(Unit = col_skip()),
                       skip = 19)
 ibutton.2$date <- as.POSIXct(ibutton.2$`Date/Time`, tz='NZST', format = '%d/%m/%y %I:%M:%S %p')
@@ -60,24 +62,75 @@ Now, let's see what the **Anomaly Detection** library produces when fed with the
 
 ### IButton 1
 ```{r ibutton1_anomaly, fig.height=6, fig.width=12}
-AnomalyDetectionTs(ibutton.5min[,c('date','T.1')],
-                    max_anoms = 0.3,
-                    plot = TRUE,
-                    title = 'IButton 1',
-                    alpha = 0.3,
-                    direction = 'both')
+anomalies.T1 <- AnomalyDetectionTs(ibutton.5min[,c('date','T.1')],
+                                   max_anoms = 0.3,
+                                   plot = TRUE,
+                                   title = 'IButton 1',
+                                   alpha = 0.3,
+                                   direction = 'both')
 ```
 
 The algorithm is able to capture most, but not all, instances of high temperature which indicate operation of the wood burner. Changing some of the parameters the performance decreases significantly. For example, choosing a shorter period for the data, the algorithm only identifies the temperature saturation events and changing the significance criteria and the maximum percentage of anomalies changes the number of events identified.
 
 ### IButton 2
 ```{r ibutton2_anomaly, fig.height=6, fig.width=12}
-AnomalyDetectionTs(ibutton.5min[,c('date','T.2')],
-                    max_anoms = 0.3,
-                    plot = TRUE,
-                    title = 'IButton 2',
-                    alpha = 0.3,
-                    direction = 'both')
+anomalies.T2 <- AnomalyDetectionTs(ibutton.5min[,c('date','T.2')],
+                                   max_anoms = 0.3,
+                                   plot = TRUE,
+                                   title = 'IButton 2',
+                                   alpha = 0.3,
+                                   direction = 'both')
 ```
+
+
+### What about the difference between sensors?
+In an ideal setup, the *hot* sensor (wood burner) would only deviate from the *cold* sensor (living room) when the woodburner is in use and that might give us another way to identify when the woodburner was operational.
+```{r difference_temperature,  fig.height=6, fig.width=12}
+ibutton.5min$DT <- ibutton.5min$T.1 - ibutton.5min$T.2
+ibutton.5min$RT <- ibutton.5min$T.1 / ibutton.5min$T.2
+timePlot(ibutton.5min,pollutant = c('DT','RT'))
+
+```
+Now let's extract the anomalies from these new columns
+```{r anomalies_ratios}
+anomalies.delta <- AnomalyDetectionTs(ibutton.5min[,c('date','DT')],
+                   max_anoms = 0.3,
+                   plot = TRUE,
+                   title = 'T1 - T2 ',
+                   alpha = 0.3,
+                   direction = 'pos')
+anomalies.ratio <- AnomalyDetectionTs(ibutton.5min[,c('date','RT')],
+                   max_anoms = 0.3,
+                   plot = TRUE,
+                   title = 'T1 / T2',
+                   alpha = 0.3,
+                   direction = 'pos')
+```
+How different are these anomalies?
+```{r plot_anomalies, fig.height=6, fig.width=12}
+anomalies.T1$anoms$event <- anomalies.T1$anoms$anoms / max(anomalies.T1$anoms$anoms)
+anomalies.T2$anoms$event <- anomalies.T2$anoms$anoms / max(anomalies.T2$anoms$anoms)
+anomalies.delta$anoms$event <- anomalies.delta$anoms$anoms / max(anomalies.delta$anoms$anoms)
+anomalies.ratio$anoms$event <- anomalies.ratio$anoms$anoms / max(anomalies.ratio$anoms$anoms)
+plot.t1 <- geom_point(aes(x=anomalies.T1$anoms$timestamp,y=anomalies.T1$anoms$event), color = 'black')
+plot.t2 <- geom_point(aes(x=anomalies.T2$anoms$timestamp,y=anomalies.T2$anoms$event), color = 'red')
+plot.dt <- geom_point(aes(x=anomalies.delta$anoms$timestamp,y=anomalies.delta$anoms$event), color = 'green')
+plot.rt <- geom_point(aes(x=anomalies.ratio$anoms$timestamp,y=anomalies.ratio$anoms$event), color = 'blue')
+plot.t1.t2 <- geom_point(aes(x=anomalies.T1$anoms$timestamp,y=anomalies.T1$anoms$event), color = 'black')
+p <- ggplot()
+p +
+  plot.t1 +
+  plot.t2 +
+  plot.dt +
+  plot.rt
+
+```
+
+Let's explore the whether the anomalies identified on these four time series correspond in time.
+
+```{r merge_anomalies}
+
+```
+
 
 
