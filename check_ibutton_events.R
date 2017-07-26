@@ -20,19 +20,17 @@ con<-dbConnect(p,
 
 
 ##### Get data ####
-data <- dbGetQuery(con,"select id.recordtime at time zone 'NZST' as date, id.value::numeric as pm
+data <- dbGetQuery(con,"select id.recordtime at time zone 'NZST' as date, id.value as pm
 from data.indoor_data as id
 where
-id.houseid = 6 AND
-id.sensorid = 63
+id.houseid = 11 AND
+id.sensorid = 83
 order by date;")
 
 data.1min <- timeAverage(data,avg.time = '1 min')
 data.10min <- timeAverage(data,avg.time = '10 min')
 data.1hr <- timeAverage(data,avg.time = '1 hour')
 timePlot(data,pollutant = 'pm',avg.time = '1 min')
-
-save.image("house_6.RData")
 
 sample_data <- data.10min
 res = AnomalyDetectionVec(sample_data$pm,
