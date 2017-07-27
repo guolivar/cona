@@ -117,13 +117,13 @@ all_odin <- rbind(all_odin,odin_123)
 
 # Plot summaries
 ggplot(data=all_odin) +
-  geom_line(aes(x=date,y=PM1,color = serialn)) +
+  geom_point(aes(x=date,y=PM1,color = serialn)) +
+  ggtitle("PM1","Bench test")
+ggplot(data=all_odin) +
+  geom_point(aes(x=date,y=PM2.5,color = serialn)) +
   ggtitle("PM2.5","Bench test")
 ggplot(data=all_odin) +
-  geom_line(aes(x=date,y=PM2.5,color = serialn)) +
-  ggtitle("PM2.5","Bench test")
-ggplot(data=all_odin) +
-  geom_line(aes(x=date,y=PM10,color = serialn)) +
-  ggtitle("PM2.5","Bench test")
+  geom_point(aes(x=date,y=PM10,color = serialn)) +
+  ggtitle("PM10","Bench test")
 
 
