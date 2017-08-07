@@ -3,9 +3,9 @@ library(readr)
 library(openair)
 library(ggplot2)
 # Paths and constants
-data_folder <- "~/data/CONA/2017/ODIN/ecan_test/"
+data_folder <- "~/data/CONA/2017/WORKING/odin/ecan_test/"
 ecan_data_file <- "RangioraJune2017.txt"
-data_file <- dir(data_folder,'odin*')
+data_file <- dir(data_folder,'ODIN*')
 nfiles <- length(data_file)
 serials <- gsub('.TXT','',gsub('_','-',toupper(data_file))) # get serialn from file names
 
