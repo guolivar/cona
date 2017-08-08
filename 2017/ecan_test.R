@@ -80,11 +80,12 @@ for (i in (1:nfiles)){
   odin.1hr.pm <- odin.1hr[,c('date',pm)]
   names(odin.1hr.pm) <- c('date',paste0(pm,serials[i]))
   ecan_data.1hr.pm <- ecan_data.1hr[,c('date',pm)]
-  merged_data <- merge(ecan_data.1hr.pm,odin.1hr.pm, by='date')
+  merged_data <- selectByDate(merge(ecan_data.1hr.pm,odin.1hr.pm, by='date'),start = '2017-06-01',end = '2017-06-20')
   if (length(merged_data$date) < 5){
     print("Too few datapoints")
     next
   }
+
   # Correction factors
   summary(eval(parse(text=paste0("correction_fit <- lm(data=merged_data, ",pm," ~`",pm,serials[i],"`)"))))
   sum_fit <- summary(correction_fit)
@@ -95,7 +96,7 @@ for (i in (1:nfiles)){
   eval(parse(text = paste0("correction.coeffs$",pm,".intrcpt[c_idx] <- correction_fit$coefficients[1]")))
   eval(parse(text = paste0("correction.coeffs$",pm,".rsqrd[c_idx] <- sum_fit$r.squared")))
   eval(parse(text=paste0("merged_data$",pm,"fitted <- predict(correction_fit,merged_data)")))
-  timePlot(selectByDate(merged_data,start = '2017-06-06',end = '2017-06-21'),
+  timePlot(selectByDate(merged_data,start = '2017-06-01',end = '2017-06-20'),
            pollutant = names(merged_data)[2:4],
            group = TRUE,
            main = paste0(serials[i],
@@ -107,7 +108,7 @@ for (i in (1:nfiles)){
   odin.1hr.pm <- odin.1hr[,c('date',pm)]
   names(odin.1hr.pm) <- c('date',paste0(pm,serials[i]))
   ecan_data.1hr.pm <- ecan_data.1hr[,c('date',pm)]
-  merged_data <- merge(ecan_data.1hr.pm,odin.1hr.pm, by='date')
+  merged_data <- selectByDate(merge(ecan_data.1hr.pm,odin.1hr.pm, by='date'),start = '2017-06-01',end = '2017-06-20')
   # Correction factors
   summary(eval(parse(text=paste0("correction_fit <- lm(data=merged_data, ",pm," ~`",pm,serials[i],"`)"))))
   sum_fit <- summary(correction_fit)
@@ -118,7 +119,7 @@ for (i in (1:nfiles)){
   eval(parse(text = paste0("correction.coeffs$",pm,".intrcpt[c_idx] <- correction_fit$coefficients[1]")))
   eval(parse(text = paste0("correction.coeffs$",pm,".rsqrd[c_idx] <- sum_fit$r.squared")))
   eval(parse(text=paste0("merged_data$",pm,"fitted <- predict(correction_fit,merged_data)")))
-  timePlot(selectByDate(merged_data,start = '2017-06-06',end = '2017-06-21'),
+  timePlot(selectByDate(merged_data,start = '2017-06-01',end = '2017-06-20'),
            pollutant = names(merged_data)[2:4],
            group = TRUE,
            main = paste0(serials[i],
@@ -130,8 +131,8 @@ for (i in (1:nfiles)){
   odin.1hr.pm <- odin.1hr[,c('date','Temperature')]
   names(odin.1hr.pm) <- c('date',paste0('Temperature-',serials[i]))
   ecan_data.1hr.pm <- ecan_data.1hr[,c('date','T2m','T6m','T')]
-  merged_data <- merge(ecan_data.1hr.pm,odin.1hr.pm, by='date')
-  timePlot(selectByDate(merged_data,start = '2017-06-01',end = '2017-06-21'),
+  merged_data <- selectByDate(merge(ecan_data.1hr.pm,odin.1hr.pm, by='date'),start = '2017-06-01',end = '2017-06-20')
+  timePlot(selectByDate(merged_data,start = '2017-06-01',end = '2017-06-20'),
            pollutant = names(merged_data)[2:5],
            group = TRUE,
            main = serials[i])
@@ -142,7 +143,7 @@ access <- read.delim("~/repositories/cona/DB/.cona_login", stringsAsFactors = FA
 ##### Open DATA connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
-               user=access$usr[1],
+               user=access$user[1],
                password=access$pwd[1],
                host='penap-data.dyndns.org',
                dbname='cona',
@@ -171,15 +172,41 @@ for (i in (1:nfiles)){
 }
 
 knitr::kable(correction.coeffs[,c('serialn',
+                                  'PM10.rsqrd',
                                   'PM10.slope',
                                   'PM10.slope.old',
                                   'PM10.intrcpt',
                                   'PM10.intrcpt.old')], digits = 2)
+readr::write_csv(correction.coeffs[,c('serialn',
+                                      'PM10.rsqrd',
+                                      'PM10.slope',
+                                      'PM10.slope.old',
+                                      'PM10.intrcpt',
+                                      'PM10.intrcpt.old')],path = paste0(data_folder,'odin_corrections_pm10.csv'))
 
 knitr::kable(correction.coeffs[,c('serialn',
+                                  'PM2.5.rsqrd',
                                   'PM2.5.slope',
                                   'PM2.5.slope.old',
                                   'PM2.5.intrcpt',
                                   'PM2.5.intrcpt.old')], digits = 2)
+readr::write_csv(correction.coeffs[,c('serialn',
+                                      'PM2.5.rsqrd',
+                                      'PM2.5.slope',
+                                      'PM2.5.slope.old',
+                                      'PM2.5.intrcpt',
+                                      'PM2.5.intrcpt.old')],path = paste0(data_folder,'odin_corrections_pm2.5.csv'))
+
+nrecs <- length(all_odin$date)
+odin_final <- all_odin[,c('date','serialn','PM1','PM2.5','PM10','Temperature','RH')]
+odin_final$PM2.5.corr <- odin_final$PM2.5
+odin_final$PM10.corr <- odin_final$PM10
+for (i in (1:length(correction.coeffs$serialn))){
+  c_idx <- which(odin_final$serialn==correction.coeffs$serialn[i])
+  odin_final$PM2.5.corr[c_idx] <- correction.coeffs$PM2.5.intrcpt[i] + correction.coeffs$PM2.5.slope[i]*odin_final$PM2.5
+  odin_final$PM10.corr[c_idx] <- correction.coeffs$PM10.intrcpt[i] + correction.coeffs$PM10.slope[i]*odin_final$PM10
+}
+
+
 #re-enable warnings to continue the session
 options(warn = oldw)
