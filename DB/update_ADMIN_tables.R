@@ -7,7 +7,7 @@ access <- read.delim("./.cona_login")
 ##### Open the connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
-               user=as.character(access$user[1]),
+               user=as.character(access$usr[1]),
                password=as.character(access$pwd[1]),
                host='localhost',
                dbname='cona',

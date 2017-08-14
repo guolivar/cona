@@ -6,7 +6,7 @@ library(reshape2)
 ##### Set the working directory DB ####
 setwd("~/repositories/cona/DB")
 ##### Read the credentials file (hidden) ####
-access <- read.delim("./.cona_login", stringsAsFactors = FALSE)
+access <- read.delim("~/repositories/cona/DB/.cona_login", stringsAsFactors = FALSE)
 ##### Open the connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
