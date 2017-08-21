@@ -1,54 +1,47 @@
 ##### Load relevant packages #####
 library(RPostgreSQL)
+library(readr)
 library(doParallel)
 ##### Set the working directory DB ####
-setwd("~/data_gustavo/repositories/cona/DB")
+setwd("~/repositories/cona/DB")
 ##### Set the path where location info is #####
-filepath <- '/home/gustavo/data_gustavo/cona'
+filepath <- '~/data/CONA/2017/RAW/odin'
 ##### Read the credentials file (hidden file not on the GIT repository) ####
 access <- read.delim("./.cona_login")
-# ##### Open ADMIN connection to the DB ####
-# p <- dbDriver("PostgreSQL")
-# con<-dbConnect(p,
-#                user=as.character(access$usr[1]),
-#                password=as.character(access$pwd[1]),
-#                host='penap-data.dyndns.org',
-#                dbname='cona',
-#                port=5432)
 
-# get the number of phisical cores availables
-cores <- detectCores()
-#
-cl <- makeCluster(cores-2)
-registerDoParallel(cl)
-
-  
 ##### Read parameters ####
-deployment <- read.delim(paste0(filepath,'/indoor_deployment.txt'))
+deployment <- read.delim(paste0(filepath,'/Instrument_Deployment_Register_ODIN.csv'))
 nchanges = length(deployment$serialn)
-all_trajectories <- foreach(i=1:nchanges,.packages=c("RPostgreSQL"),.combine=rbind) %dopar% {
+#all_trajectories <- foreach(i=1:nchanges,.packages=c("RPostgreSQL"),.combine=rbind) %dopar% {
   ##### Open ADMIN connection to the DB ####
-  p <- dbDriver("PostgreSQL")
-  con<-dbConnect(p,
-                 user=as.character(access$usr[1]),
-                 password=as.character(access$pwd[1]),
-                 host='penap-data.dyndns.org',
-                 dbname='cona',
-                 port=5432)
+p <- dbDriver("PostgreSQL")
+con<-dbConnect(p,
+               user=as.character(access$usr[1]),
+               password=as.character(access$pwd[1]),
+               host='penap-data.dyndns.org',
+               dbname='cona',
+               port=5432)
+for (i in (1:nchanges)){
   serialn = as.character(deployment$serialn[i])
   date1 = as.character(deployment$date1[i])
   date2 = as.character(deployment$date2[i])
-  site = deployment$house[i]
+  site = deployment$site[i]
+  if (nchar(date1)<5){
+    date1 <- "2017-01-01 00:00:00 NZST"
+  }
+  if (nchar(date2)<5){
+    date2 <- "2018-01-01 00:00:00 NZST"
+  }
   print(serialn)
   print(date1)
   print(date2)
   print(site)
   
-  data <- dbGetQuery(con,paste0("UPDATE data.indoor_data
-                              SET houseid = ",
+  data <- dbGetQuery(con,paste0("UPDATE data.fixed_data
+                              SET siteid = ",
                               site,
                               " WHERE id in
-                              (select d.id from data.indoor_data as d, admin.sensor as s, admin.instrument as i
+                              (select d.id from data.fixed_data as d, admin.sensor as s, admin.instrument as i
                               where
                               	d.recordtime > '",
                                 date1,
@@ -59,7 +52,8 @@ all_trajectories <- foreach(i=1:nchanges,.packages=c("RPostgreSQL"),.combine=rbi
                               	s.id = d.sensorid AND
                               	s.instrumentid = i.id AND
                               	i.serialn = '",serialn,"')"))
-  dbDisconnect(con)
+  #}
+  ### Close the connection ####
+  print(data)
 }
-### Close the connection ####
-print(data)
+dbDisconnect(con)

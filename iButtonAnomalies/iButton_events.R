@@ -3,30 +3,42 @@ library(RPostgreSQL)
 library(openair)
 library(ggplot2)
 library(reshape2)
-##### Set the working directory DB ####
-setwd("~/repositories/cona/DB")
+library(AnomalyDetection)
+##### Set the working directory REPOSITORY-ROOT ####
+setwd("~/repositories/cona/")
 ##### Read the credentials file (hidden) ####
-access <- read.delim("~/repositories/cona/DB/.cona_login", stringsAsFactors = FALSE)
+access <- read.delim("./DB/.cona_login", stringsAsFactors = FALSE)
+##### Set the working directory IButtonAnomaly ####
+setwd("~/repositories/cona/iButtonAnomalies/")
 ##### Open the connection to the DB ####
 p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
-               user=access$usr[2],
+               user=access$user[2],
                password=access$pwd[2],
-               host='54.206.251.211',
+               host='penap-data.dyndns.org',
                dbname='cona',
                port=5432)
 
 
 ##### Get data ####
-data <- dbGetQuery(con,"SELECT d.recordtime at time zone 'NZST' as date, d.value as pm25, i.serialn as instrument, fs.geom as geom
-                   FROM data.fixed_data as d, admin.sensor as s, admin.instrument as i, admin.fixedsites as fs
-                   WHERE s.id = d.sensorid AND
-                   s.instrumentid = i.id AND
-                   fs.id = d.siteid AND
-                   fs.id = 18 AND
-                   i.name = 'ODIN-SD-3' AND
-                   s.name = 'PM2.5'")
-data$pm2.5 <- as.numeric(gsub("'","",data$pm25))
+
+data <- dbGetQuery(con,"select id.recordtime at time zone 'NZST' as date, id.value::numeric as pm
+from data.indoor_data as id, admin.sensor as s
+where
+id.houseid = 6 AND
+id.sensorid = 63
+order by date;")
+
+
+
+
+ggplot(data)+
+  geom_point(aes(x=temp,y=pm2.5, colour = instrument))
+
+ggplot(data)+
+  geom_point(aes(x=rh,y=pm2.5, colour = instrument))
+
+
 wide_data <- dcast(data,date~instrument,value.var = 'pm2.5',fun.aggregate = mean)
 one_hour <- timeAverage(wide_data,avg.time = '1 hour')
 one_day <- timeAverage(wide_data,avg.time = '1 day')

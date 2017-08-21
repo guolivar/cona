@@ -5,7 +5,7 @@ library(readr)
 
 
 ##### Set the working directory DB ####
-setwd("~/repositories/cona/DB")
+setwd("~/repositories/cona/2017")
 ##### Read the credentials file (hidden) ####
 access <- read.delim("~/repositories/cona/DB/.cona_login", stringsAsFactors = FALSE)
 ##### Open the connection to the DB ####
@@ -17,7 +17,7 @@ con<-dbConnect(p,
                dbname='cona',
                port=5432)
 ## Find the files to process ####
-filepath <- '~/data/CONA/2017/WORKING/odin/deployment'
+filepath <- '~/data/CONA/2017/WORKING/odin/ecan_test'
 files <- list.files(filepath,pattern = 'ODIN*')
 time_corrections <- read.delim(paste0(filepath,'/time_corrections.txt'))
 time_corrections$real_time <- as.POSIXct(time_corrections$real_time,tz = 'Etc/GMT-12')
