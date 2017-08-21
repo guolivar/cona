@@ -17,68 +17,19 @@ p <- dbDriver("PostgreSQL")
 con<-dbConnect(p,
                user=access$usr[2],
                password=access$pwd[2],
-               host='localhost',
+               host='penap-data.dyndns.org',
                dbname='cona',
                port=5432)
 ##### Moving Average function ####
 ma <- function(x,n=5){filter(x,rep(1/n,n), sides=1)}
-##### Get data ####
-# Select average for an hour/day at all locations and then krig the result
-data <- dbGetQuery(con,"SELECT
-    (fs.id) as siteid,
-    i.serialn,
-    avg(d.value::numeric) as pm25,
-    max(ST_X(ST_TRANSFORM(fs.geom::geometry,2193))) as x,
-    max(ST_Y(ST_TRANSFORM(fs.geom::geometry,2193))) as y,
-    date_trunc('minute',d.recordtime at time zone 'NZST') as date
-  FROM
-    data.fixed_data as d,
-    admin.sensor as s,
-    admin.instrument as i,
-    admin.fixedsites as fs
-  WHERE
-    s.id = d.sensorid AND
-	  s.instrumentid = i.id AND
-	  fs.id = d.siteid AND
-  	i.name = 'ODIN-SD-3' AND
-  	s.name = 'PM2.5' AND
-    (d.recordtime at time zone 'NZST') >= timestamp '2017-06-20 12:00:00' AND
-    (d.recordtime at time zone 'NZST') <= timestamp '2017-08-31 16:00:00' AND
-    ST_WITHIN(fs.geom::geometry, ST_BUFFER((select x.geom::geometry from admin.fixedsites as x where x.id=18),0.05))
-  GROUP BY
-    date_trunc('minute',d.recordtime at time zone 'NZST'),
-    i.serialn,
-    fs.id;")
-dbDisconnect(con)
 
-
-
-# Turn into a 60min running average
-serialn <- unique(data$serialn)
-data$pm2.5 <- data$pm25
-for (sn in serialn){
-  # Subset the data to have only 1 sensor
-  indices <- which(data$serialn==sn)
-  sensordata <- data[indices,]
-  # Moving average
-  sensordata$pm2.5 <- ma(sensordata$pm25,60)
-  data$pm2.5[indices] <- sensordata$pm2.5
-}
-
-# Re-sample every 10 minutes
-data.10m <- subset(data,as.numeric(format(data$date,'%M')) %in% c(0,10,20,30,40,50))
-# Use only data from deployed period ... started at
+##### Load data from file ####
+load(file = '~/data/CONA/2017/WORKING/odin/odin_June2017_2.RData')
 data.10m <- subset(data.10m,date>as.POSIXct('2017-06-21 04:00:00'))
-
-
-save(list = c('data', 'data.10m'),file = '/data/data_gustavo/cona/odin_June2017_2.RData')
-write_tsv(x = data,path =  '/data/data_gustavo/cona/odin_June2017.txt')
-write_tsv(x = data.10m,path =  '/data/data_gustavo/cona/odin_June2017_10min.txt')
 coordinates(data.10m) <- ~ x + y
 coordinates(data) <- ~ x + y
 proj4string(data.10m) <- CRS('+init=epsg:2193')
 proj4string(data) <- CRS('+init=epsg:2193')
-
 
 i=0
 for (d_slice in sort(unique(data.10m$date))){
