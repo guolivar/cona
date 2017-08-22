@@ -79,11 +79,35 @@ coordinates(data) <- ~ x + y
 proj4string(data.10m) <- CRS('+init=epsg:2193')
 proj4string(data) <- CRS('+init=epsg:2193')
 
+print("Starting the kriging")
+
+#Setting the  prediction grid properties
+cellsize <- 100 #pixel size in projection units (NZTM, i.e. metres)
+min_x <- data.10m@bbox[1,1] - cellsize#minimun x coordinate
+min_y <- data.10m@bbox[2,1] - cellsize #minimun y coordinate
+max_x <- data.10m@bbox[1,2] + cellsize #mximum x coordinate
+max_y <- data.10m@bbox[2,2] + cellsize #maximum y coordinate
+
+x_length <- max_x - min_x #easting amplitude
+y_length <- max_y - min_y #northing amplitude
+
+ncol <- round(x_length/cellsize,0) #number of columns in grid
+nrow <- round(y_length/cellsize,0) #number of rows in grid
+
+grid <- GridTopology(cellcentre.offset=c(min_x,min_y),cellsize=c(cellsize,cellsize),cells.dim=c(ncol,nrow))
+
+#Convert GridTopolgy object to SpatialPixelsDataFrame object.
+grid <- SpatialPixelsDataFrame(grid,
+                              data=data.frame(id=1:prod(ncol,nrow)),
+                              proj4string=CRS('+init=epsg:2193'))
+
+
+
+
 
 i=0
 for (d_slice in sort(unique(data.10m$date))){
   c_data <- subset(data.10m,subset = (date==d_slice))
-  plot(c_data)
   print(i)
   
   if (length(unique(c_data$siteid))<4){
@@ -91,7 +115,7 @@ for (d_slice in sort(unique(data.10m$date))){
     next
   }
   eval(parse(text=paste0("surf.",i," <- ",
-                         "autoKrige(pm2.5 ~ 1,data=c_data,input_data=c_data)")))
+                         "autoKrige(pm2.5 ~ 1,data=c_data,new_data = grid, input_data=c_data)")))
   eval(parse(text=paste0("surf.",i,"$krige_output$timestamp <-d_slice")))
   eval(parse(text=paste0("proj4string(surf.",i,"$krige_output) <- CRS('+init=epsg:2193')")))
   if (i==0){
@@ -99,21 +123,29 @@ for (d_slice in sort(unique(data.10m$date))){
     eval(parse(text=paste0("x_bbox <- surf.",i,"$krige_output@bbox")))
     eval(parse(text=paste0("x_coords <- surf.",i,"$krige_output@coords")))
     x_coords.nrs <- c(1,2)
+    eval(parse(text=paste0("to_rast <- surf.",i,"$krige_output")))
+    r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
+    crs(r0) <- '+init=epsg:2193'
+    raster_cat <- r0
   }
   else {
     eval(parse(text=paste0("x_data <- rbind(x_data,surf.",i,"$krige_output@data)")))
     eval(parse(text=paste0("x_coords <- rbind(x_coords,surf.",i,"$krige_output@coords)")))
+    eval(parse(text=paste0("to_rast <- surf.",i,"$krige_output")))
+    r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
+    crs(r0) <- '+init=epsg:2193'
+    raster_cat <- addLayer(raster_cat,r0)
   }
   i <- i+1
 }
 x_bbox[1,] <-c(min(x_coords[,1]),min(x_coords[,2]))
 x_bbox[2,] <-c(max(x_coords[,1]),max(x_coords[,2]))
-all_data <- SpatialPointsDataFrame(coords = x_coords, data = x_data, coords.nrs = x_coords.nrs, bbox = x_bbox)
-proj4string(all_data) <- CRS('+init=epsg:2193')
-all_data <- spTransform(all_data,CRS("+proj=longlat +datum=WGS84"))
+krigged_odin_data <- SpatialPointsDataFrame(coords = x_coords, data = x_data, coords.nrs = x_coords.nrs, bbox = x_bbox)
+proj4string(krigged_odin_data) <- CRS('+init=epsg:2193')
+krigged_odin_data <- spTransform(krigged_odin_data,CRS("+proj=longlat +datum=WGS84"))
 
 
-writeOGR(all_data, ".", "JuneJuly2017_pm25_1_min_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+writeOGR(krigged_odin_data, ".", "JuneJuly2017_pm25_10_min_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
 
 
 save(krigged_odin_data,file='/data/data_gustavo/cona/krigged_data_JuneJuly2017.RData')
