@@ -216,13 +216,10 @@ raster_cat_idw_LL <- projectRaster(raster_stack.idw,crs = "+proj=longlat +datum=
 raster_cat_idw2_LL <- projectRaster(raster_stack.idw2,crs = "+proj=longlat +datum=WGS84")
 save(list = c('raster_cat_idw_LL','raster_cat_idw2_LL'),file = '/data/data_gustavo/cona/raster_odin_IDW_JuneJuly2017.RData')
 
-<<<<<<< HEAD
 save(raster_cat,file = '/data/data_gustavo/cona/raster_odin_JuneJuly2017.RData')
 raster_cat_LL <- projectRaster(raster_cat,crs = "+proj=longlat +datum=WGS84")
 writeRaster(raster_cat_LL, filename="./odin_June-July2017.nc", overwrite=TRUE)
 
-=======
 #writeRaster(raster_cat_LL, filename="./odin_June-July2017_autokrig.nc", overwrite=TRUE)
 writeRaster(raster_cat_idw_LL, filename="./odin_June-July2017_idw.nc", overwrite=TRUE)
 writeRaster(raster_cat_idw2_LL, filename="./odin_June-July2017_idw2.nc", overwrite=TRUE)
->>>>>>> 24d87b9678dbe6d0ee43a8332f60eb7bc4d8e54a
