@@ -19,3 +19,9 @@ vignettes/*.pdf
 *.shp
 *.shx
 .cona_login
+*.Rout
+*.nc
+*.tgz
+*.mp4
+*.prj
+
