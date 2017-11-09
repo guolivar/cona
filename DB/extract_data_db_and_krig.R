@@ -151,3 +151,6 @@ writeOGR(krigged_odin_data, ".", "JuneJuly2017_pm25_10_min_krigged", driver = "E
 save(krigged_odin_data,file='/data/data_gustavo/cona/krigged_data_JuneJuly2017.RData')
 
 save(raster_cat,file = '/data/data_gustavo/cona/raster_odin_JuneJuly2017.RData')
+raster_cat_LL <- projectRaster(raster_cat,crs = "+proj=longlat +datum=WGS84")
+writeRaster(raster_cat_LL, filename="./odin_June-July2017.nc", overwrite=TRUE)
+
