@@ -8,6 +8,8 @@ library(gstat)
 library(sp)
 library(rgdal)
 library(ggmap)
+library(gstat)
+library(ncdf4)
 ##### Set the working directory DB ####
 setwd("~/repositories/cona/DB")
 ##### Read the credentials file (hidden) ####
@@ -103,51 +105,117 @@ grid <- SpatialPixelsDataFrame(grid,
 
 
 
-
-
-i=0
-for (d_slice in sort(unique(data.10m$date))){
-  c_data <- subset(data.10m,subset = (date==d_slice))
-  print(i)
-  
-  if (length(unique(c_data$siteid))<4){
-    i <- i+1
-    next
+all_dates <- sort(unique(data.10m$date))
+ndates <- length(all_dates)
+breaks <- as.numeric(quantile((1:ndates),c(0,0.2,0.4,0.6,0.8,1), type = 1))
+nbreaks <- length(breaks)
+fidx <- 1
+for (j in (1:(nbreaks-1))){
+  i <- 0
+  if (j == 1){
+    j1 <- 1
+    j2 <- breaks[j+1]
+  } else {
+    j1 <- breaks[j]
+    j2 <- breaks[j+1]
   }
-  eval(parse(text=paste0("surf.",i," <- ",
-                         "autoKrige(pm2.5 ~ 1,data=c_data,new_data = grid, input_data=c_data)")))
-  eval(parse(text=paste0("surf.",i,"$krige_output$timestamp <-d_slice")))
-  eval(parse(text=paste0("proj4string(surf.",i,"$krige_output) <- CRS('+init=epsg:2193')")))
-  if (i==0){
-    eval(parse(text=paste0("x_data <- surf.",i,"$krige_output@data")))
-    eval(parse(text=paste0("x_bbox <- surf.",i,"$krige_output@bbox")))
-    eval(parse(text=paste0("x_coords <- surf.",i,"$krige_output@coords")))
-    x_coords.nrs <- c(1,2)
-    eval(parse(text=paste0("to_rast <- surf.",i,"$krige_output")))
-    r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
-    crs(r0) <- '+init=epsg:2193'
-    raster_cat <- r0
+  for (d_slice in (j1:j2)){
+    c_data <- subset(data.10m,subset = (date==all_dates[d_slice]))
+    
+    if (length(unique(c_data$siteid))<4){
+      next
+    }
+    #  surf.krig <- autoKrige(pm2.5 ~ 1,data=c_data,new_data = grid, input_data=c_data)
+    #  surf.krig$krige_output$timestamp <-d_slice
+    #  proj4string(surf.krig$krige_output) <- CRS('+init=epsg:2193')
+    
+    surf.idw <- idw(pm2.5 ~ 1,newdata = grid, locations = c_data, idp = 1)
+    surf.idw$timestamp <-d_slice
+    proj4string(surf.idw) <- CRS('+init=epsg:2193')
+    
+    surf.idw2 <- idw(pm2.5 ~ 1,newdata = grid, locations = c_data, idp = 2)
+    surf.idw2$timestamp <-d_slice
+    proj4string(surf.idw2) <- CRS('+init=epsg:2193')
+    
+    if (i==0){
+      #    x_data <- surf.krig$krige_output@data
+      #    x_bbox <- surf.krig$krige_output@bbox
+      #    x_coords <- surf.krig$krige_output@coords
+      #    x_coords.nrs <- c(1,2)
+      #    to_rast.krig <- surf.krig$krige_output
+      #    r0.krig <- rasterFromXYZ(cbind(to_rast.krig@coords,to_rast.krig@data$var1.pred))
+      #    crs(r0.krig) <- '+init=epsg:2193'
+      #    raster_cat.krig <- r0.krig
+      
+      to_rast.idw <- surf.idw
+      r0.idw <- rasterFromXYZ(cbind(surf.idw@coords,surf.idw$var1.pred))
+      crs(r0.idw) <- '+init=epsg:2193'
+      raster_cat.idw<- r0.idw
+      
+      to_rast.idw2 <- surf.idw2
+      r0.idw2 <- rasterFromXYZ(cbind(surf.idw2@coords,surf.idw2$var1.pred))
+      crs(r0.idw2) <- '+init=epsg:2193'
+      raster_cat.idw2<- r0.idw2
+      i <- 1
+    }
+    else {
+      #    x_data <- rbind(x_data,surf.krig$krige_output@data)
+      #    x_coords <- rbind(x_coords,surf.krig$krige_output@coords)
+      #    to_rast.krig <- surf.krig$krige_output
+      #    r0.krig <- rasterFromXYZ(cbind(to_rast.krig@coords,to_rast.krig@data$var1.pred))
+      #    crs(r0.krig) <- '+init=epsg:2193'
+      #    raster_cat.krig <- addLayer(raster_cat.krig,r0.krig)
+      
+      to_rast.idw <- surf.idw
+      r0.idw <- rasterFromXYZ(cbind(surf.idw@coords,surf.idw$var1.pred))
+      crs(r0.idw) <- '+init=epsg:2193'
+      raster_cat.idw<- addLayer(raster_cat.idw,r0.idw)
+      
+      to_rast.idw2 <- surf.idw2
+      r0.idw2 <- rasterFromXYZ(cbind(surf.idw2@coords,surf.idw2$var1.pred))
+      crs(r0.idw2) <- '+init=epsg:2193'
+      raster_cat.idw2<- addLayer(raster_cat.idw2,r0.idw2)
+    }
+    #  if (min(to_rast.krig@data$var1.pred)<0){
+    print(all_dates[d_slice])
+    #  }
   }
-  else {
-    eval(parse(text=paste0("x_data <- rbind(x_data,surf.",i,"$krige_output@data)")))
-    eval(parse(text=paste0("x_coords <- rbind(x_coords,surf.",i,"$krige_output@coords)")))
-    eval(parse(text=paste0("to_rast <- surf.",i,"$krige_output")))
-    r0 <- rasterFromXYZ(cbind(to_rast@coords,to_rast@data$var1.pred))
-    crs(r0) <- '+init=epsg:2193'
-    raster_cat <- addLayer(raster_cat,r0)
-  }
-  i <- i+1
+  save('raster_cat.idw',file = paste0('/data/data_gustavo/cona/raster_cat.idw.',fidx,'.RData'))
+  save('raster_cat.idw2',file = paste0('/data/data_gustavo/cona/raster_cat.idw2.',fidx,'.Rdata'))
+  rm('raster_cat.idw')
+  rm('raster_cat.idw2')
+  fidx <- fidx + 1
 }
-x_bbox[1,] <-c(min(x_coords[,1]),min(x_coords[,2]))
-x_bbox[2,] <-c(max(x_coords[,1]),max(x_coords[,2]))
-krigged_odin_data <- SpatialPointsDataFrame(coords = x_coords, data = x_data, coords.nrs = x_coords.nrs, bbox = x_bbox)
-proj4string(krigged_odin_data) <- CRS('+init=epsg:2193')
-krigged_odin_data <- spTransform(krigged_odin_data,CRS("+proj=longlat +datum=WGS84"))
+fidx <- 6
+for (i in (1:(fidx-1))){
+  load(paste0('/data/data_gustavo/cona/raster_cat.idw.',i,'.RData'))
+  load(paste0('/data/data_gustavo/cona/raster_cat.idw2.',i,'.Rdata'))
+  if (i == 1){
+    raster_stack.idw <- raster_cat.idw
+    raster_stack.idw2 <- raster_cat.idw2
+  } else {
+    raster_stack.idw <- addLayer(raster_stack.idw,raster_cat.idw)
+    raster_stack.idw2 <- addLayer(raster_stack.idw2,raster_cat.idw2)
+  }
+}
+
+#x_bbox[1,] <-c(min(x_coords[,1]),min(x_coords[,2]))
+#x_bbox[2,] <-c(max(x_coords[,1]),max(x_coords[,2]))
+#krigged_odin_data <- SpatialPointsDataFrame(coords = x_coords, data = x_data, coords.nrs = x_coords.nrs, bbox = x_bbox)
+#proj4string(krigged_odin_data) <- CRS('+init=epsg:2193')
+#krigged_odin_data <- spTransform(krigged_odin_data,CRS("+proj=longlat +datum=WGS84"))
 
 
-writeOGR(krigged_odin_data, ".", "JuneJuly2017_pm25_10_min_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
+#writeOGR(krigged_odin_data, ".", "JuneJuly2017_pm25_10_min_krigged", driver = "ESRI Shapefile", overwrite_layer = TRUE)
 
 
-save(krigged_odin_data,file='/data/data_gustavo/cona/krigged_data_JuneJuly2017.RData')
+#save(krigged_odin_data,file='/data/data_gustavo/cona/krigged_data_JuneJuly2017.RData')
 
-save(raster_cat,file = '/data/data_gustavo/cona/raster_odin_JuneJuly2017.RData')
+#raster_cat_LL <- projectRaster(raster_cat,crs = "+proj=longlat +datum=WGS84")
+raster_cat_idw_LL <- projectRaster(raster_stack.idw,crs = "+proj=longlat +datum=WGS84")
+raster_cat_idw2_LL <- projectRaster(raster_stack.idw2,crs = "+proj=longlat +datum=WGS84")
+save(list = c('raster_cat_idw_LL','raster_cat_idw2_LL'),file = '/data/data_gustavo/cona/raster_odin_IDW_JuneJuly2017.RData')
+
+#writeRaster(raster_cat_LL, filename="./odin_June-July2017_autokrig.nc", overwrite=TRUE)
+writeRaster(raster_cat_idw_LL, filename="./odin_June-July2017_idw.nc", overwrite=TRUE)
+writeRaster(raster_cat_idw2_LL, filename="./odin_June-July2017_idw2.nc", overwrite=TRUE)
